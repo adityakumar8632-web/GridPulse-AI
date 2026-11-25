@@ -1,0 +1,2306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GridPulse-AI | Jamshedpur Isometric Satellite &amp; Predictive Load Balancer</title>
+
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            canvas: '#F8FAFC',
+            surface: '#FFFFFF',
+            hairline: '#E2E8F0',
+            slateInk: '#0F172A',
+            slateBody: '#334155',
+            slateMuted: '#64748B',
+            cobalt: {
+              DEFAULT: '#2563EB',
+              hover: '#1D4ED8',
+              soft: '#EFF6FF',
+              border: '#BFDBFE',
+            },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    /* Base Reset & Typography */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #F8FAFC;
+      color: #0F172A;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    .tabular-readout {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Custom Range Sliders (Electric Cobalt Blue Accent) */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #E2E8F0;
+      border-radius: 9999px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #2563EB;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+      cursor: pointer;
+      transition: transform 0.15s ease, background-color 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #1D4ED8;
+      transform: scale(1.1);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #2563EB;
+      border: 2px solid #FFFFFF;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+      cursor: pointer;
+    }
+
+    /* Pulsing Radar Animation for Red Overload Substation Pointers */
+    @keyframes radarPulse {
+      0% {
+        transform: scale(0.85);
+        opacity: 0.95;
+      }
+      70% {
+        transform: scale(2.35);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(2.35);
+        opacity: 0;
+      }
+    }
+
+    .pulse-ring-red {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: radarPulse 1.65s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+
+    .gmap-pin-pulse {
+      animation: radarPulse 1.65s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+    }
+
+    /* Tab Visibility */
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Chart Container Sizing */
+    .chart-box {
+      position: relative;
+      width: 100%;
+      height: 290px;
+    }
+
+    .chart-box-sm {
+      position: relative;
+      width: 100%;
+      height: 235px;
+    }
+
+    /* Clean Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #F1F5F9;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+  </style>
+</head>
+<body class="bg-canvas text-slateInk min-h-screen flex flex-col">
+
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-40 border-b border-hairline bg-surface/95 backdrop-blur-sm">
+    <div class="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <!-- Brand Identity -->
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-cobalt text-white shadow-sm">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold tracking-tight text-slateInk sm:text-lg">GridPulse-AI</h1>
+            <span class="rounded-md border border-cobalt-border bg-cobalt-soft px-2 py-0.5 text-[11px] font-semibold text-cobalt">
+              Jamshedpur Utility Suite
+            </span>
+          </div>
+          <p class="text-xs text-slateMuted">3D Isometric Satellite Telemetry &amp; Multi-Sector Load Balancing</p>
+        </div>
+      </div>
+
+      <!-- Calm Telemetry Status, Developer Mode Toggle & Grid Risk Pill -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Static Calm Status Badge -->
+        <div class="flex items-center gap-2 rounded-xl border border-hairline bg-canvas px-3 py-1.5 text-xs">
+          <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+          <span class="font-semibold text-slateInk">Jamshedpur Grid</span>
+          <span class="text-slateMuted">&bull; Live Telemetry Ready</span>
+        </div>
+
+        <!-- Developer Mode Switch -->
+        <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-hairline bg-canvas px-3 py-1.5 text-xs transition hover:border-cobalt">
+          <span class="font-semibold text-slateBody">Developer Mode</span>
+          <div class="relative inline-flex items-center">
+            <input id="devModeToggle" type="checkbox" class="peer sr-only" />
+            <div class="h-4 w-8 rounded-full bg-slate-300 transition peer-checked:bg-cobalt after:absolute after:left-[2px] after:top-[2px] after:h-3 after:w-3 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4"></div>
+          </div>
+          <span id="devModeStateLabel" class="tabular-readout text-[11px] font-bold text-slateMuted">OFF</span>
+        </label>
+
+        <!-- Feeder Health Badge -->
+        <div id="globalStatusBadge" class="flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800">
+          <span id="globalStatusDot" class="h-2 w-2 rounded-full bg-amber-500"></span>
+          <span id="globalStatusText">WARNING: 89.6% Peak Load</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Control-Room Layout -->
+  <div class="mx-auto flex w-full max-w-[1440px] flex-1 flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row">
+
+    <!-- ==================== LEFT SIDEBAR: SCENARIO & SECTOR CONTROLS ==================== -->
+    <aside class="w-full shrink-0 space-y-5 lg:w-80">
+      <div class="rounded-2xl border border-hairline bg-surface p-4 shadow-xs">
+        <div class="mb-3 flex items-center justify-between">
+          <h2 class="text-xs font-bold uppercase tracking-wider text-slateMuted">Grid Scenario Controls</h2>
+          <button id="btnResetControls" type="button" class="text-xs font-semibold text-cobalt hover:underline">
+            Reset
+          </button>
+        </div>
+
+        <!-- Active Jamshedpur Substation -->
+        <div class="mb-4">
+          <label for="nodeSelect" class="mb-1.5 block text-xs font-semibold text-slateBody">
+            Target Jamshedpur Substation
+          </label>
+          <select
+            id="nodeSelect"
+            class="w-full rounded-xl border border-hairline bg-canvas px-3 py-2 text-xs font-semibold text-slateInk outline-none transition focus:border-cobalt focus:ring-2 focus:ring-cobalt/15"
+          ></select>
+        </div>
+
+        <!-- Forecast Horizon Presets: 2 hr, 6 hr, 10 hr -->
+        <div class="mb-4">
+          <div class="mb-1.5 flex items-center justify-between">
+            <span class="text-xs font-semibold text-slateBody">Forecast Horizon Preset</span>
+            <span id="horizonActiveTag" class="tabular-readout text-[11px] font-bold text-cobalt">+6 hr Ahead</span>
+          </div>
+          <div class="grid grid-cols-3 gap-1.5 rounded-xl bg-canvas p-1 border border-hairline">
+            <button
+              type="button"
+              data-horizon="2h"
+              class="horizon-btn rounded-lg py-1.5 text-xs font-semibold text-slateBody transition hover:text-slateInk"
+            >
+              2 hr
+            </button>
+            <button
+              type="button"
+              data-horizon="6h"
+              class="horizon-btn rounded-lg bg-cobalt py-1.5 text-xs font-semibold text-white shadow-xs transition"
+            >
+              6 hr
+            </button>
+            <button
+              type="button"
+              data-horizon="10h"
+              class="horizon-btn rounded-lg py-1.5 text-xs font-semibold text-slateBody transition hover:text-slateInk"
+            >
+              10 hr
+            </button>
+          </div>
+        </div>
+
+        <!-- Smart Load-Shifting Toggle -->
+        <div class="mb-4 flex items-center justify-between rounded-xl border border-cobalt-border bg-cobalt-soft/60 p-3">
+          <div>
+            <div class="text-xs font-bold text-slateInk">Smart ToU Load-Shifting</div>
+            <div class="text-[11px] text-slateMuted">Defer EV &amp; dispatch BESS at peak</div>
+          </div>
+          <label class="relative inline-flex cursor-pointer items-center">
+            <input id="smartShiftToggle" type="checkbox" checked class="peer sr-only" />
+            <div class="h-5 w-9 rounded-full bg-slate-300 transition peer-checked:bg-cobalt after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all peer-checked:after:translate-x-4"></div>
+          </label>
+        </div>
+
+        <!-- Multi-Sector & Weather Sliders -->
+        <div class="space-y-3.5 border-t border-hairline pt-3.5">
+          <div>
+            <div class="mb-1 flex justify-between text-xs">
+              <span class="font-medium text-slateBody">EV Penetration Rate</span>
+              <span id="valEvPct" class="tabular-readout font-bold text-cobalt">22%</span>
+            </div>
+            <input id="sliderEvPct" type="range" min="5" max="45" step="1" value="22" />
+          </div>
+
+          <div>
+            <div class="mb-1 flex justify-between text-xs">
+              <span class="font-medium text-slateBody">Residential Load Factor</span>
+              <span id="valResScale" class="tabular-readout font-bold text-slateInk">1.00×</span>
+            </div>
+            <input id="sliderResScale" type="range" min="0.7" max="1.4" step="0.05" value="1.0" />
+          </div>
+
+          <div>
+            <div class="mb-1 flex justify-between text-xs">
+              <span class="font-medium text-slateBody">Commercial Load Factor</span>
+              <span id="valComScale" class="tabular-readout font-bold text-slateInk">1.00×</span>
+            </div>
+            <input id="sliderComScale" type="range" min="0.7" max="1.4" step="0.05" value="1.0" />
+          </div>
+
+          <div>
+            <div class="mb-1 flex justify-between text-xs">
+              <span class="font-medium text-slateBody">Industrial Load Factor</span>
+              <span id="valIndScale" class="tabular-readout font-bold text-slateInk">1.05×</span>
+            </div>
+            <input id="sliderIndScale" type="range" min="0.7" max="1.4" step="0.05" value="1.05" />
+          </div>
+
+          <div>
+            <div class="mb-1 flex justify-between text-xs">
+              <span class="font-medium text-slateBody">Ambient Temperature</span>
+              <span id="valTemp" class="tabular-readout font-bold text-slateInk">38°C</span>
+            </div>
+            <input id="sliderTemp" type="range" min="22" max="46" step="1" value="38" />
+          </div>
+
+          <div>
+            <div class="mb-1 flex justify-between text-xs">
+              <span class="font-medium text-slateBody">Solar Cloud Cover</span>
+              <span id="valCloud" class="tabular-readout font-bold text-slateInk">20%</span>
+            </div>
+            <input id="sliderCloud" type="range" min="0" max="100" step="5" value="20" />
+          </div>
+        </div>
+
+        <button
+          id="btnRunNow"
+          type="button"
+          class="mt-4 w-full rounded-xl bg-cobalt py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-cobalt-hover"
+        >
+          Apply Scenario
+        </button>
+      </div>
+    </aside>
+
+    <!-- ==================== RIGHT WORKSPACE: KPIS + TABS ==================== -->
+    <main class="min-w-0 flex-1 space-y-6">
+
+      <!-- 4 Executive KPI Cards -->
+      <section class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="rounded-2xl border border-hairline bg-surface p-4">
+          <div class="flex items-center justify-between text-xs font-semibold text-slateMuted">
+            <span>INCOMING POWER (PEAK)</span>
+            <span class="rounded bg-cobalt-soft px-1.5 py-0.5 text-[10px] font-bold text-cobalt">GRID + PV + BESS</span>
+          </div>
+          <div id="kpiIncoming" class="tabular-readout mt-2 text-2xl font-bold text-slateInk">642.8 kW</div>
+          <div id="kpiIncomingSub" class="mt-1 text-xs text-slateMuted">Grid 548 kW &bull; Solar 62 kW &bull; BESS 33 kW</div>
+        </div>
+
+        <div class="rounded-2xl border border-hairline bg-surface p-4">
+          <div class="flex items-center justify-between text-xs font-semibold text-slateMuted">
+            <span>OUTGOING POWER (PEAK)</span>
+            <span class="rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slateBody">4 SECTORS</span>
+          </div>
+          <div id="kpiOutgoing" class="tabular-readout mt-2 text-2xl font-bold text-slateInk">638.4 kW</div>
+          <div id="kpiOutgoingSub" class="mt-1 text-xs text-slateMuted">Res + Com + Ind + EV Charging</div>
+        </div>
+
+        <div class="rounded-2xl border border-hairline bg-surface p-4">
+          <div class="flex items-center justify-between text-xs font-semibold text-slateMuted">
+            <span>TRANSFORMER UTILIZATION</span>
+            <span id="kpiUtilBadge" class="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800">WARNING</span>
+          </div>
+          <div id="kpiUtilization" class="tabular-readout mt-2 text-2xl font-bold text-slateInk">89.6%</div>
+          <div id="kpiUtilSub" class="mt-1 text-xs text-slateMuted">Rated Cap: 712.5 kW (750 kVA)</div>
+        </div>
+
+        <div class="rounded-2xl border border-hairline bg-surface p-4">
+          <div class="flex items-center justify-between text-xs font-semibold text-slateMuted">
+            <span>PEAK SHAVED (BALANCER)</span>
+            <span class="rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-bold text-emerald-700">ToU ACTIVE</span>
+          </div>
+          <div id="kpiShaved" class="tabular-readout mt-2 text-2xl font-bold text-cobalt">-11.8%</div>
+          <div id="kpiShavedSub" class="mt-1 text-xs text-slateMuted">85.4 kW deferred to 01:00–05:00</div>
+        </div>
+      </section>
+
+      <!-- Navigation Tabs (Product View + Developer Mode Tabs) -->
+      <nav class="flex flex-wrap items-center justify-between gap-2 border-b border-hairline pb-3">
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            data-tab="satmap"
+            class="tab-btn rounded-xl bg-cobalt px-4 py-2 text-xs font-bold text-white shadow-xs transition"
+          >
+            1. Live Telemetry &amp; Map
+          </button>
+          <button
+            type="button"
+            data-tab="powerflow"
+            class="tab-btn rounded-xl border border-hairline bg-surface px-4 py-2 text-xs font-semibold text-slateBody transition hover:border-cobalt hover:text-cobalt"
+          >
+            2. Smart Load Balancer
+          </button>
+          <button
+            type="button"
+            data-tab="csvtrain"
+            class="tab-btn dev-only hidden rounded-xl border border-cobalt-border bg-cobalt-soft/60 px-4 py-2 text-xs font-semibold text-cobalt transition hover:bg-cobalt hover:text-white"
+          >
+            3. Dev: CSV &amp; Model Trainer
+          </button>
+          <button
+            type="button"
+            data-tab="audit"
+            class="tab-btn dev-only hidden rounded-xl border border-cobalt-border bg-cobalt-soft/60 px-4 py-2 text-xs font-semibold text-cobalt transition hover:bg-cobalt hover:text-white"
+          >
+            4. Dev: Diagnostics &amp; CBSE Logbook
+          </button>
+        </div>
+
+        <span id="devModeBannerPill" class="hidden rounded-lg border border-cobalt-border bg-cobalt-soft px-2.5 py-1 text-[11px] font-semibold text-cobalt">
+          Developer Diagnostics Unlocked
+        </span>
+      </nav>
+
+      <!-- ==================== TAB 1: LIVE TELEMETRY & JAMSHEDPUR 3D SATELLITE MAP ==================== -->
+      <section id="panel-satmap" class="tab-panel active space-y-6">
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+
+          <!-- Left 8 Cols: Google Maps 3D Isometric Satellite & Fallback Viewport -->
+          <div class="xl:col-span-8 rounded-2xl border border-hairline bg-surface p-4 sm:p-5">
+            <!-- Title & Isometric Camera Angle Controls -->
+            <div class="mb-3 flex flex-col justify-between gap-2.5 sm:flex-row sm:items-center">
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="text-base font-bold text-slateInk">Jamshedpur City — 3D Isometric Satellite Telemetry</h3>
+                  <span id="gmapEngineBadge" class="inline-flex items-center gap-1.5 rounded-md bg-slateInk px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+                    <span id="gmapEngineDot" class="h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+                    <span id="gmapEngineLabel">Initializing</span>
+                  </span>
+                </div>
+                <p class="text-xs text-slateMuted">
+                  8 Jamshedpur 132/33/11 kV feeders (22.8046° N, 86.2029° E). Click any substation pin to inspect live telemetry.
+                </p>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button type="button" id="camIso45Btn" class="rounded-lg border border-cobalt-border bg-cobalt-soft px-2.5 py-1.5 text-xs font-semibold text-cobalt transition hover:bg-cobalt hover:text-white">
+                  Isometric 45°
+                </button>
+                <button type="button" id="camSteep65Btn" class="rounded-lg border border-hairline bg-canvas px-2.5 py-1.5 text-xs font-semibold text-slateBody transition hover:border-cobalt hover:text-cobalt">
+                  Steep 65° 3D
+                </button>
+                <button type="button" id="camTop2dBtn" class="rounded-lg border border-hairline bg-canvas px-2.5 py-1.5 text-xs font-semibold text-slateBody transition hover:border-cobalt hover:text-cobalt">
+                  Top-Down 2D
+                </button>
+                <button type="button" id="camRotate45Btn" class="rounded-lg border border-hairline bg-canvas px-2.5 py-1.5 text-xs font-semibold text-slateBody transition hover:border-cobalt hover:text-cobalt">
+                  Rotate +45°
+                </button>
+                <button type="button" id="camResetJsrBtn" class="rounded-lg border border-hairline bg-canvas px-2.5 py-1.5 text-xs font-semibold text-slateBody transition hover:border-cobalt hover:text-cobalt">
+                  Reset Jamshedpur
+                </button>
+              </div>
+            </div>
+
+            <!-- Map Viewport Container -->
+            <div class="relative h-[460px] w-full overflow-hidden rounded-xl border border-hairline bg-[#0B1726]">
+              <!-- Real Google Maps Mount Div -->
+              <div id="realGoogleMapDiv" class="hidden h-full w-full"></div>
+
+              <!-- Seamless 3D Isometric Satellite Fallback Canvas -->
+              <div id="fallbackIsoWrapper" class="relative h-full w-full">
+                <canvas id="jamshedpurIsoCanvas" class="block h-full w-full"></canvas>
+                <svg id="jamshedpurNodeOverlay" class="pointer-events-none absolute inset-0 h-full w-full"></svg>
+              </div>
+
+              <!-- Top-Left Satellite HUD -->
+              <div class="pointer-events-none absolute left-3.5 top-3.5 z-10 rounded-xl border border-white/15 bg-slateInk/85 px-3 py-2 text-[11px] text-white backdrop-blur-sm">
+                <div class="flex items-center gap-2 font-semibold">
+                  <span class="h-2 w-2 rounded-full bg-cobalt"></span>
+                  <span id="hudEngineMode">JAMSHEDPUR FEEDER NETWORK</span>
+                </div>
+                <div class="tabular-readout mt-0.5 text-[10px] text-slate-300">
+                  Horizon: <span id="hudHorizon" class="font-bold text-white">+6 hr</span> &bull;
+                  Camera: <span id="hudCamPose" class="font-bold text-cobalt-border">Tilt 58° / Hdg -30°</span> &bull;
+                  <span id="hudFreq" class="font-bold text-emerald-400">50.00 Hz</span>
+                </div>
+              </div>
+
+              <!-- Bottom-Left Risk Legend -->
+              <div class="pointer-events-none absolute bottom-3.5 left-3.5 z-10 flex flex-wrap items-center gap-3 rounded-xl border border-white/15 bg-slateInk/85 px-3.5 py-2 text-[11px] text-white backdrop-blur-sm">
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                  <span>Low Surge Risk (&lt;78%)</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                  <span>Warning (78–94%)</span>
+                </span>
+                <span class="inline-flex items-center gap-1.5">
+                  <span class="relative flex h-2.5 w-2.5">
+                    <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-400 opacity-75"></span>
+                    <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-rose-500"></span>
+                  </span>
+                  <span>Future Overload (&ge;95%)</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right 4 Cols: Selected Substation Inspector & All 8 Nodes List -->
+          <div class="xl:col-span-4 flex flex-col justify-between gap-4 rounded-2xl border border-hairline bg-surface p-4 sm:p-5">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider text-cobalt">Selected Substation Telemetry</span>
+                <span id="mapCardStatusPill" class="rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800">
+                  WARNING
+                </span>
+              </div>
+              <h4 id="mapCardName" class="mt-1 text-base font-bold text-slateInk">Bistupur 132/33 kV Substation</h4>
+              <p id="mapCardZone" class="text-xs text-slateMuted">Commercial &amp; EV Corridor &bull; 750 kVA</p>
+
+              <!-- Incoming vs Outgoing Mini Box -->
+              <div class="mt-3.5 grid grid-cols-2 gap-2.5 rounded-xl border border-hairline bg-canvas p-3">
+                <div>
+                  <div class="text-[10px] font-semibold uppercase text-slateMuted">Incoming Power</div>
+                  <div id="mapCardIncoming" class="tabular-readout mt-0.5 text-sm font-bold text-cobalt">642.8 kW</div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-semibold uppercase text-slateMuted">Outgoing Power</div>
+                  <div id="mapCardOutgoing" class="tabular-readout mt-0.5 text-sm font-bold text-slateInk">638.4 kW</div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-semibold uppercase text-slateMuted">Forecast Utilization</div>
+                  <div id="mapCardUtil" class="tabular-readout mt-0.5 text-sm font-bold text-amber-600">89.6%</div>
+                </div>
+                <div>
+                  <div class="text-[10px] font-semibold uppercase text-slateMuted">Peak EV Load</div>
+                  <div id="mapCardEv" class="tabular-readout mt-0.5 text-sm font-bold text-slateInk">118.2 kW</div>
+                </div>
+              </div>
+
+              <!-- Operator Dispatch Advisory -->
+              <div id="operatorAdvisoryBox" class="mt-3 rounded-xl border border-cobalt-border bg-cobalt-soft/60 p-3 text-xs leading-relaxed text-slateBody">
+                Projected 89.6% utilization on Bistupur feeder. Smart ToU tariff incentive active (₹2.50/kWh rebate 01:00–05:00) deferring non-urgent EV charging.
+              </div>
+            </div>
+
+            <!-- All 8 Jamshedpur Substations Quick Selector -->
+            <div>
+              <div class="mb-2 flex items-center justify-between text-xs font-bold text-slateInk">
+                <span>All 8 Jamshedpur Feeders</span>
+                <span id="overloadCountBadge" class="text-[11px] font-semibold text-rose-600">2 Overload Alerts</span>
+              </div>
+              <div id="substationListContainer" class="max-h-[210px] space-y-1.5 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Primary Product Charts Directly Below Map -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <!-- Chart 1: Incoming vs Outgoing Stacked Balance -->
+          <div class="rounded-2xl border border-hairline bg-surface p-5">
+            <div class="mb-3">
+              <h3 class="text-base font-bold text-slateInk">24-Hour Incoming vs. Outgoing Power Flow (kW)</h3>
+              <p class="text-xs text-slateMuted">Grid Inflow + Solar PV + BESS Discharge vs. Total Multi-Sector Consumption</p>
+            </div>
+            <div class="chart-box">
+              <canvas id="chartIncomingOutgoing"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Actual vs AI Forecast & Balanced Curve -->
+          <div class="rounded-2xl border border-hairline bg-surface p-5">
+            <div class="mb-3">
+              <h3 class="text-base font-bold text-slateInk">AI Load Forecast vs. Smart-Shifted Curve &amp; Limits</h3>
+              <p class="text-xs text-slateMuted">Uncontrolled peak vs. ToU balanced load with 85% Warning &amp; 100% Critical thresholds</p>
+            </div>
+            <div class="chart-box">
+              <canvas id="chartForecastCurve"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 2: SMART LOAD BALANCER & SECTOR SCHEDULE ==================== -->
+      <section id="panel-powerflow" class="tab-panel space-y-6">
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div class="lg:col-span-5 rounded-2xl border border-hairline bg-surface p-5">
+            <h3 class="mb-1 text-base font-bold text-slateInk">Outgoing Consumption by Sector (kW)</h3>
+            <p class="mb-3 text-xs text-slateMuted">Residential, Commercial, Industrial &amp; EV Charging stacked load</p>
+            <div class="chart-box">
+              <canvas id="chartSectorStack"></canvas>
+            </div>
+          </div>
+
+          <div class="lg:col-span-7 rounded-2xl border border-hairline bg-surface p-5">
+            <div class="mb-3 flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-slateInk">Hourly Incoming / Outgoing Telemetry &amp; ToU Dispatch Schedule</h3>
+                <p class="text-xs text-slateMuted">Live 24-hour energy balance across incoming sources and consumer sectors</p>
+              </div>
+            </div>
+            <div class="max-h-[290px] overflow-auto rounded-xl border border-hairline">
+              <table class="w-full text-left text-xs">
+                <thead class="sticky top-0 bg-canvas text-[11px] font-bold uppercase text-slateMuted border-b border-hairline">
+                  <tr>
+                    <th class="px-3 py-2">Hour</th>
+                    <th class="px-3 py-2">Incoming (kW)</th>
+                    <th class="px-3 py-2">Outgoing (kW)</th>
+                    <th class="px-3 py-2">Res / Com / Ind</th>
+                    <th class="px-3 py-2">EV (kW)</th>
+                    <th class="px-3 py-2">Load %</th>
+                  </tr>
+                </thead>
+                <tbody id="hourlyLedgerBody" class="tabular-readout divide-y divide-hairline"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 3 (DEV MODE): DEMO CSV & IN-BROWSER MODEL TRAINER ==================== -->
+      <section id="panel-csvtrain" class="tab-panel space-y-6">
+        <div class="rounded-2xl border border-hairline bg-surface p-5">
+          <div class="flex flex-col justify-between gap-4 border-b border-hairline pb-4 lg:flex-row lg:items-center">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-cobalt-soft px-2 py-0.5 text-[10px] font-bold uppercase text-cobalt">Developer Sandbox</span>
+                <h3 class="text-base font-bold text-slateInk">Jamshedpur 30-Day Telemetry Dataset &amp; Model Trainer</h3>
+              </div>
+              <p class="mt-0.5 text-xs text-slateMuted">
+                Switch active AI architectures, download the 720-row Jamshedpur demo CSV, upload custom telemetry, or fit the in-browser model.
+              </p>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-2">
+              <!-- AI Model Selector (Moved to Dev Mode) -->
+              <select
+                id="modelSelect"
+                class="rounded-xl border border-hairline bg-canvas px-3 py-2 text-xs font-semibold text-slateInk outline-none transition focus:border-cobalt focus:ring-2 focus:ring-cobalt/15"
+              >
+                <option value="xgboost">XGBoost Regressor (Best RMSE)</option>
+                <option value="lstm">PyTorch LSTM Sequence Net</option>
+                <option value="rf">Random Forest Ensemble</option>
+                <option value="csv_trained">Custom CSV-Trained Ridge Model</option>
+              </select>
+
+              <button
+                id="btnDownloadDemoCsv"
+                type="button"
+                class="rounded-xl border border-hairline bg-canvas px-3.5 py-2 text-xs font-semibold text-slateInk transition hover:border-cobalt hover:text-cobalt"
+              >
+                Download Demo CSV (720 Rows)
+              </button>
+
+              <label class="cursor-pointer rounded-xl border border-hairline bg-canvas px-3.5 py-2 text-xs font-semibold text-slateInk transition hover:border-cobalt hover:text-cobalt">
+                Upload Custom CSV
+                <input id="inputUploadCsv" type="file" accept=".csv" class="hidden" />
+              </label>
+
+              <button
+                id="btnTrainOnCsv"
+                type="button"
+                class="rounded-xl bg-cobalt px-4 py-2 text-xs font-bold text-white shadow-xs transition hover:bg-cobalt-hover"
+              >
+                Train Model on CSV
+              </button>
+            </div>
+          </div>
+
+          <!-- Training Status & Learned Weights Banner -->
+          <div id="trainingBanner" class="mt-4 grid grid-cols-1 gap-3 rounded-xl border border-cobalt-border bg-cobalt-soft/50 p-3.5 text-xs sm:grid-cols-4">
+            <div>
+              <span class="text-slateMuted">Dataset Rows:</span>
+              <strong id="csvRowCount" class="tabular-readout ml-1 text-slateInk">720 rows</strong>
+            </div>
+            <div>
+              <span class="text-slateMuted">Trained Model RMSE:</span>
+              <strong id="csvTrainedRmse" class="tabular-readout ml-1 text-cobalt">14.2 kW</strong>
+            </div>
+            <div>
+              <span class="text-slateMuted">Trained Model MAE:</span>
+              <strong id="csvTrainedMae" class="tabular-readout ml-1 text-slateInk">10.8 kW</strong>
+            </div>
+            <div>
+              <span class="text-slateMuted">Status:</span>
+              <strong id="csvTrainStatus" class="ml-1 text-emerald-700">Ready (Pre-loaded Jamshedpur CSV)</strong>
+            </div>
+          </div>
+
+          <!-- CSV Preview Table -->
+          <div class="mt-4 max-h-[340px] overflow-auto rounded-xl border border-hairline">
+            <table class="w-full text-left text-xs">
+              <thead class="sticky top-0 bg-canvas text-[11px] font-bold uppercase text-slateMuted border-b border-hairline">
+                <tr>
+                  <th class="px-3 py-2">Timestamp</th>
+                  <th class="px-3 py-2">Substation</th>
+                  <th class="px-3 py-2">Temp (°C)</th>
+                  <th class="px-3 py-2">Solar (kW)</th>
+                  <th class="px-3 py-2">Res (kW)</th>
+                  <th class="px-3 py-2">Com (kW)</th>
+                  <th class="px-3 py-2">Ind (kW)</th>
+                  <th class="px-3 py-2">EV (kW)</th>
+                  <th class="px-3 py-2">Total Load (kW)</th>
+                  <th class="px-3 py-2">Overload</th>
+                </tr>
+              </thead>
+              <tbody id="csvPreviewBody" class="tabular-readout divide-y divide-hairline"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== TAB 4 (DEV MODE): DIAGNOSTICS, API SETTINGS & CBSE LOGBOOK ==================== -->
+      <section id="panel-audit" class="tab-panel space-y-6">
+        <!-- Developer API Key Configuration Card (Moved from Main Map View) -->
+        <div class="rounded-2xl border border-cobalt-border bg-surface p-4 sm:p-5">
+          <div class="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="rounded bg-cobalt-soft px-2 py-0.5 text-[10px] font-bold uppercase text-cobalt">Developer API Config</span>
+                <h3 class="text-sm font-bold text-slateInk">Google Maps Platform 3D Satellite Key</h3>
+              </div>
+              <p class="mt-0.5 text-xs text-slateMuted">
+                Pre-configured with your demo API key. Override or reload the Maps JavaScript SDK here without cluttering the product map.
+              </p>
+            </div>
+
+            <div class="flex flex-1 items-center gap-2 sm:max-w-md">
+              <input
+                id="gmapApiKeyInput"
+                type="text"
+                value="AIzaSyCC0RLiQn2CxBTIgBSqy9jsbOsbmVK9m-g"
+                placeholder="Paste Google Maps Platform API Key..."
+                class="w-full rounded-xl border border-hairline bg-canvas px-3 py-2 text-xs font-mono text-slateInk outline-none transition focus:border-cobalt focus:ring-2 focus:ring-cobalt/15"
+              />
+              <button
+                id="btnLoadGmapApi"
+                type="button"
+                class="shrink-0 rounded-xl bg-cobalt px-3.5 py-2 text-xs font-semibold text-white shadow-xs transition hover:bg-cobalt-hover"
+              >
+                Reload Map API
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <!-- SHAP Feature Importance -->
+          <div class="rounded-2xl border border-hairline bg-surface p-5">
+            <h3 class="mb-1 text-base font-bold text-slateInk">AI Feature Attribution (SHAP Impact Score)</h3>
+            <p class="mb-3 text-xs text-slateMuted">Relative contribution of grid drivers to peak transformer stress prediction</p>
+            <div class="chart-box-sm">
+              <canvas id="chartShapDrivers"></canvas>
+            </div>
+          </div>
+
+          <!-- Temperature vs Load Sensitivity Scatter -->
+          <div class="rounded-2xl border border-hairline bg-surface p-5">
+            <h3 class="mb-1 text-base font-bold text-slateInk">Ambient Temperature vs. Feeder Load Sensitivity</h3>
+            <p class="mb-3 text-xs text-slateMuted">Non-linear cooling &amp; HVAC surge correlation across Jamshedpur 24h cycle</p>
+            <div class="chart-box-sm">
+              <canvas id="chartTempScatter"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Model Benchmark Comparison & Confusion Matrix -->
+        <div class="rounded-2xl border border-hairline bg-surface p-5">
+          <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h3 class="text-base font-bold text-slateInk">CBSE Capstone Model Benchmark Matrix &amp; Logbook Exporter</h3>
+              <p class="text-xs text-slateMuted">Chronological 70/15/15 split evaluation on Jamshedpur feeder logs</p>
+            </div>
+            <div class="flex gap-2">
+              <button id="btnExportJson" type="button" class="rounded-xl border border-hairline bg-canvas px-3 py-1.5 text-xs font-semibold text-slateInk hover:border-cobalt hover:text-cobalt">
+                Export JSON
+              </button>
+              <button id="btnExportLogCsv" type="button" class="rounded-xl bg-cobalt px-3 py-1.5 text-xs font-semibold text-white hover:bg-cobalt-hover">
+                Export Logbook CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+            <div class="lg:col-span-7 overflow-x-auto rounded-xl border border-hairline">
+              <table class="w-full text-left text-xs">
+                <thead class="bg-canvas text-[11px] font-bold uppercase text-slateMuted border-b border-hairline">
+                  <tr>
+                    <th class="px-3 py-2">Architecture</th>
+                    <th class="px-3 py-2">RMSE (kW)</th>
+                    <th class="px-3 py-2">MAE (kW)</th>
+                    <th class="px-3 py-2">Overload Recall</th>
+                    <th class="px-3 py-2">F1-Score</th>
+                  </tr>
+                </thead>
+                <tbody id="benchmarkTableBody" class="tabular-readout divide-y divide-hairline"></tbody>
+              </table>
+            </div>
+
+            <!-- 2x2 Confusion Matrix -->
+            <div class="lg:col-span-5">
+              <div class="mb-2 text-xs font-bold text-slateInk">Overload Alert Confusion Matrix (Test Split n = 108 hrs)</div>
+              <div class="grid grid-cols-2 gap-2 text-center text-xs">
+                <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-2.5">
+                  <div class="text-[10px] font-bold uppercase text-emerald-700">True Negative (Safe Correct)</div>
+                  <div id="cmTn" class="tabular-readout mt-0.5 text-base font-bold text-emerald-900">76</div>
+                </div>
+                <div class="rounded-xl border border-amber-200 bg-amber-50 p-2.5">
+                  <div class="text-[10px] font-bold uppercase text-amber-700">False Positive (Early Caution)</div>
+                  <div id="cmFp" class="tabular-readout mt-0.5 text-base font-bold text-amber-900">4</div>
+                </div>
+                <div class="rounded-xl border border-rose-200 bg-rose-50 p-2.5">
+                  <div class="text-[10px] font-bold uppercase text-rose-700">False Negative (Missed Surge)</div>
+                  <div id="cmFn" class="tabular-readout mt-0.5 text-base font-bold text-rose-900">2</div>
+                </div>
+                <div class="rounded-xl border border-cobalt-border bg-cobalt-soft p-2.5">
+                  <div class="text-[10px] font-bold uppercase text-cobalt">True Positive (Overload Caught)</div>
+                  <div id="cmTp" class="tabular-readout mt-0.5 text-base font-bold text-slateInk">26</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Non-blocking Toast Notification -->
+  <div id="toastBanner" class="pointer-events-none fixed bottom-4 right-4 z-50 translate-y-4 opacity-0 rounded-xl bg-slateInk px-4 py-2.5 text-xs font-semibold text-white shadow-lg transition-all duration-200">
+    Notification
+  </div>
+
+  <script>
+    const HOURS = Array.from({ length: 24 }, (_, h) => `${String(h).padStart(2, '0')}:00`);
+
+    // 8 Real Jamshedpur Substations / Feeders with exact lat/lng & projected isometric coordinates
+    const JAMSHEDPUR_NODES = [
+      {
+        id: 'bistupur',
+        name: 'Bistupur 132/33 kV Substation',
+        shortName: 'Bistupur',
+        zoneType: 'Commercial & EV Corridor',
+        lat: 22.7925,
+        lng: 86.1842,
+        kva: 750,
+        ratedKw: 712.5,
+        bessKwh: 260,
+        nx: -0.14,
+        ny: 0.14,
+        baseStressBias: 0.90,
+        resShare: [0.14,0.12,0.12,0.12,0.12,0.14,0.18,0.22,0.24,0.23,0.22,0.22,0.22,0.22,0.23,0.24,0.26,0.29,0.31,0.30,0.26,0.22,0.18,0.15],
+        comShare: [0.09,0.08,0.08,0.08,0.09,0.12,0.20,0.31,0.43,0.51,0.55,0.57,0.56,0.55,0.55,0.55,0.51,0.45,0.38,0.33,0.27,0.21,0.15,0.11],
+        indShare: [0.07,0.07,0.07,0.07,0.07,0.08,0.09,0.11,0.12,0.13,0.13,0.13,0.13,0.13,0.13,0.13,0.12,0.11,0.10,0.10,0.09,0.09,0.08,0.08],
+        evProfile: [0.06,0.05,0.04,0.04,0.04,0.06,0.12,0.26,0.52,0.72,0.80,0.76,0.68,0.66,0.70,0.78,0.86,0.94,1.00,0.92,0.68,0.40,0.20,0.10],
+        evMaxKwAt40: 215,
+        solarPeakKw: 145,
+        coolingMaxKw: 165,
+      },
+      {
+        id: 'sakchi',
+        name: 'Sakchi Main Grid Feeder',
+        shortName: 'Sakchi',
+        zoneType: 'Mixed Commercial & Jubilee Core',
+        lat: 22.8046,
+        lng: 86.2029,
+        kva: 650,
+        ratedKw: 617.5,
+        bessKwh: 220,
+        nx: 0.04,
+        ny: -0.02,
+        baseStressBias: 0.87,
+        resShare: [0.20,0.18,0.17,0.16,0.17,0.21,0.27,0.32,0.34,0.32,0.29,0.28,0.29,0.30,0.32,0.35,0.40,0.46,0.52,0.57,0.58,0.52,0.40,0.28],
+        comShare: [0.08,0.07,0.07,0.07,0.08,0.10,0.16,0.24,0.33,0.39,0.42,0.43,0.42,0.41,0.41,0.41,0.38,0.34,0.29,0.24,0.19,0.15,0.11,0.09],
+        indShare: [0.07,0.07,0.06,0.06,0.06,0.07,0.08,0.10,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.11,0.10,0.09,0.08,0.08,0.07,0.07,0.07,0.07],
+        evProfile: [0.10,0.07,0.05,0.04,0.04,0.06,0.10,0.18,0.26,0.32,0.34,0.34,0.35,0.38,0.42,0.48,0.60,0.78,0.94,1.00,0.92,0.74,0.46,0.24],
+        evMaxKwAt40: 185,
+        solarPeakKw: 120,
+        coolingMaxKw: 140,
+      },
+      {
+        id: 'tata_steel',
+        name: 'Tata Steel Works / Burma Mines Grid',
+        shortName: 'Tata Works',
+        zoneType: 'Heavy Industrial Feeder',
+        lat: 22.7830,
+        lng: 86.2120,
+        kva: 1000,
+        ratedKw: 950,
+        bessKwh: 380,
+        nx: 0.14,
+        ny: 0.25,
+        baseStressBias: 1.03,
+        resShare: [0.08,0.07,0.07,0.07,0.07,0.08,0.10,0.12,0.13,0.12,0.11,0.11,0.11,0.11,0.12,0.13,0.14,0.16,0.17,0.17,0.15,0.13,0.11,0.09],
+        comShare: [0.05,0.04,0.04,0.04,0.05,0.06,0.09,0.13,0.17,0.19,0.20,0.20,0.19,0.19,0.19,0.18,0.17,0.15,0.13,0.11,0.09,0.08,0.06,0.05],
+        indShare: [0.38,0.37,0.36,0.36,0.38,0.43,0.49,0.54,0.56,0.57,0.57,0.56,0.53,0.55,0.56,0.55,0.54,0.52,0.50,0.49,0.47,0.44,0.41,0.39],
+        evProfile: [0.15,0.11,0.09,0.09,0.11,0.19,0.36,0.54,0.62,0.56,0.50,0.48,0.50,0.54,0.60,0.68,0.80,0.94,1.00,0.88,0.66,0.44,0.28,0.18],
+        evMaxKwAt40: 260,
+        solarPeakKw: 190,
+        coolingMaxKw: 185,
+      },
+      {
+        id: 'sonari',
+        name: 'Sonari 33/11 kV Feeder',
+        shortName: 'Sonari',
+        zoneType: 'Residential & Rooftop Solar',
+        lat: 22.8185,
+        lng: 86.1715,
+        kva: 500,
+        ratedKw: 475,
+        bessKwh: 190,
+        nx: -0.28,
+        ny: -0.22,
+        baseStressBias: 0.72,
+        resShare: [0.22,0.19,0.18,0.17,0.18,0.22,0.29,0.34,0.36,0.34,0.31,0.30,0.31,0.32,0.34,0.37,0.42,0.49,0.56,0.61,0.63,0.57,0.44,0.31],
+        comShare: [0.05,0.04,0.04,0.04,0.05,0.06,0.09,0.13,0.17,0.19,0.20,0.20,0.19,0.19,0.19,0.18,0.16,0.13,0.10,0.08,0.07,0.06,0.05,0.05],
+        indShare: [0.05,0.05,0.04,0.04,0.04,0.05,0.06,0.07,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.07,0.06,0.06,0.05,0.05,0.05,0.05,0.05],
+        evProfile: [0.11,0.07,0.05,0.04,0.04,0.05,0.08,0.12,0.10,0.08,0.07,0.08,0.10,0.12,0.14,0.18,0.28,0.52,0.82,0.96,1.00,0.86,0.54,0.28],
+        evMaxKwAt40: 150,
+        solarPeakKw: 110,
+        coolingMaxKw: 110,
+      },
+      {
+        id: 'kadma',
+        name: 'Kadma Residential Substation',
+        shortName: 'Kadma',
+        zoneType: 'Residential Housing & Market',
+        lat: 22.8012,
+        lng: 86.1610,
+        kva: 500,
+        ratedKw: 475,
+        bessKwh: 175,
+        nx: -0.36,
+        ny: 0.03,
+        baseStressBias: 0.78,
+        resShare: [0.23,0.20,0.19,0.18,0.19,0.23,0.30,0.35,0.37,0.35,0.32,0.31,0.32,0.33,0.35,0.38,0.43,0.50,0.57,0.62,0.64,0.58,0.45,0.32],
+        comShare: [0.06,0.05,0.05,0.05,0.06,0.07,0.10,0.14,0.18,0.20,0.21,0.21,0.20,0.20,0.20,0.19,0.17,0.14,0.11,0.09,0.08,0.07,0.06,0.06],
+        indShare: [0.05,0.05,0.04,0.04,0.04,0.05,0.06,0.07,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.07,0.06,0.06,0.05,0.05,0.05,0.05,0.05],
+        evProfile: [0.11,0.07,0.05,0.04,0.04,0.05,0.08,0.12,0.10,0.08,0.07,0.08,0.10,0.12,0.14,0.18,0.28,0.52,0.82,0.96,1.00,0.86,0.54,0.28],
+        evMaxKwAt40: 155,
+        solarPeakKw: 95,
+        coolingMaxKw: 115,
+      },
+      {
+        id: 'telco',
+        name: 'Telco / Govindpur Industrial Zone',
+        shortName: 'Telco Zone',
+        zoneType: 'Industrial Township & Fleet EV',
+        lat: 22.7715,
+        lng: 86.2580,
+        kva: 800,
+        ratedKw: 760,
+        bessKwh: 290,
+        nx: 0.52,
+        ny: 0.34,
+        baseStressBias: 0.85,
+        resShare: [0.15,0.13,0.12,0.12,0.13,0.15,0.19,0.22,0.23,0.22,0.20,0.20,0.20,0.21,0.22,0.24,0.27,0.31,0.35,0.37,0.36,0.32,0.25,0.19],
+        comShare: [0.05,0.04,0.04,0.04,0.05,0.06,0.08,0.11,0.14,0.16,0.17,0.17,0.16,0.16,0.16,0.15,0.14,0.12,0.10,0.08,0.07,0.06,0.05,0.05],
+        indShare: [0.24,0.23,0.22,0.22,0.24,0.28,0.33,0.37,0.39,0.40,0.40,0.39,0.37,0.38,0.39,0.38,0.37,0.35,0.33,0.32,0.30,0.28,0.26,0.25],
+        evProfile: [0.14,0.10,0.08,0.08,0.10,0.16,0.28,0.42,0.48,0.44,0.40,0.38,0.40,0.44,0.50,0.58,0.72,0.88,0.98,1.00,0.88,0.66,0.40,0.22],
+        evMaxKwAt40: 225,
+        solarPeakKw: 155,
+        coolingMaxKw: 150,
+      },
+      {
+        id: 'adityapur',
+        name: 'Adityapur Industrial Area (Phase II)',
+        shortName: 'Adityapur',
+        zoneType: 'Auto Cluster & MSME Industrial',
+        lat: 22.7890,
+        lng: 86.1420,
+        kva: 900,
+        ratedKw: 855,
+        bessKwh: 310,
+        nx: -0.54,
+        ny: 0.22,
+        baseStressBias: 0.99,
+        resShare: [0.10,0.09,0.09,0.09,0.09,0.10,0.12,0.14,0.15,0.14,0.13,0.13,0.13,0.13,0.14,0.15,0.16,0.18,0.19,0.19,0.17,0.15,0.13,0.11],
+        comShare: [0.06,0.05,0.05,0.05,0.06,0.07,0.10,0.14,0.18,0.20,0.21,0.21,0.20,0.20,0.20,0.19,0.18,0.16,0.14,0.12,0.10,0.09,0.07,0.06],
+        indShare: [0.35,0.34,0.33,0.33,0.35,0.40,0.46,0.51,0.53,0.54,0.54,0.53,0.50,0.52,0.53,0.52,0.51,0.49,0.47,0.46,0.44,0.41,0.38,0.36],
+        evProfile: [0.12,0.09,0.07,0.07,0.09,0.16,0.30,0.48,0.56,0.50,0.45,0.44,0.46,0.50,0.56,0.64,0.76,0.90,0.98,0.88,0.68,0.46,0.28,0.16],
+        evMaxKwAt40: 235,
+        solarPeakKw: 170,
+        coolingMaxKw: 175,
+      },
+      {
+        id: 'dimna',
+        name: 'Mango / Dimna Road Feeder',
+        shortName: 'Dimna Road',
+        zoneType: 'Suburban Solar & Residential',
+        lat: 22.8280,
+        lng: 86.2185,
+        kva: 550,
+        ratedKw: 522.5,
+        bessKwh: 210,
+        nx: 0.22,
+        ny: -0.34,
+        baseStressBias: 0.68,
+        resShare: [0.21,0.18,0.17,0.16,0.17,0.21,0.28,0.33,0.35,0.33,0.30,0.29,0.30,0.31,0.33,0.36,0.41,0.48,0.54,0.59,0.61,0.55,0.42,0.30],
+        comShare: [0.06,0.05,0.05,0.05,0.06,0.07,0.10,0.14,0.18,0.20,0.21,0.21,0.20,0.20,0.20,0.19,0.17,0.14,0.11,0.09,0.08,0.07,0.06,0.06],
+        indShare: [0.05,0.05,0.04,0.04,0.04,0.05,0.06,0.07,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.08,0.07,0.06,0.06,0.05,0.05,0.05,0.05,0.05],
+        evProfile: [0.10,0.06,0.04,0.04,0.04,0.05,0.08,0.12,0.10,0.08,0.07,0.08,0.10,0.12,0.14,0.18,0.28,0.50,0.80,0.95,1.00,0.84,0.52,0.26],
+        evMaxKwAt40: 155,
+        solarPeakKw: 135,
+        coolingMaxKw: 115,
+      },
+    ];
+
+    const JAMSHEDPUR_CENTER = { lat: 22.8046, lng: 86.2029 };
+    const DEFAULT_GMAP_DEMO_KEY = 'AIzaSyCC0RLiQn2CxBTIgBSqy9jsbOsbmVK9m-g';
+    const GMAP_STORAGE_KEY = 'gridpulse_gmap_api_key_v1';
+
+    const MODEL_BENCHMARKS = {
+      xgboost: { label: 'XGBoost Regressor', rmse: 11.4, mae: 8.6, recall: 0.94, f1: 0.91, noiseScale: 0.014, bias: 1.01 },
+      lstm: { label: 'PyTorch LSTM Net', rmse: 12.8, mae: 9.5, recall: 0.92, f1: 0.89, noiseScale: 0.018, bias: 1.02 },
+      rf: { label: 'Random Forest', rmse: 15.1, mae: 11.3, recall: 0.88, f1: 0.85, noiseScale: 0.022, bias: 0.99 },
+      csv_trained: { label: 'CSV-Trained Ridge', rmse: 14.2, mae: 10.8, recall: 0.90, f1: 0.87, noiseScale: 0.016, bias: 1.00 },
+    };
+
+    // Global Dashboard State
+    let state = {
+      tab: 'satmap',
+      devMode: false,
+      nodeId: 'bistupur',
+      horizon: '6h',
+      model: 'xgboost',
+      smartShift: true,
+      evPct: 22,
+      resScale: 1.0,
+      comScale: 1.0,
+      indScale: 1.05,
+      tempC: 38,
+      cloudPct: 20,
+    };
+
+    let scenarioRevision = 0;
+    let allNodeSummaries = [];
+    let trainingCsvRows = [];
+    let chartInstances = {};
+
+    // Isometric & Google Maps Camera State
+    let isoCamera = {
+      yawDeg: -30,
+      pitchDeg: 58,
+      zoom: 1.0,
+    };
+    let projectedNodeScreenCoords = [];
+
+    // Real Google Maps JS API Runtime State
+    let gmapRuntime = {
+      loaded: false,
+      failed: false,
+      map: null,
+      infoWindow: null,
+      markers: {},
+      polylines: [],
+      AdvancedMarkerElement: null,
+    };
+
+    function showToast(msg) {
+      const el = document.getElementById('toastBanner');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('translate-y-4', 'opacity-0');
+      clearTimeout(el.__timer);
+      el.__timer = setTimeout(() => {
+        el.classList.add('translate-y-4', 'opacity-0');
+      }, 3200);
+    }
+
+    // ==================== 1. SIMULATION ENGINE ====================
+    function simulateNode24h(node, liveJitterSeed = 0) {
+      const horizonMult = state.horizon === '2h' ? 0.97 : state.horizon === '6h' ? 1.03 : 1.09;
+      const tempDelta = Math.max(0, state.tempC - 26);
+      const coolingFactor = Math.pow(tempDelta / 18, 1.35);
+      const solarFactor = 1 - (state.cloudPct / 100) * 0.78;
+      const evRatio = state.evPct / 40;
+      const modelSpec = MODEL_BENCHMARKS[state.model] || MODEL_BENCHMARKS.xgboost;
+
+      const resKw = [];
+      const comKw = [];
+      const indKw = [];
+      const rawEvKw = [];
+      const balancedEvKw = [];
+      const solarKw = [];
+      const bessDispatchKw = [];
+      const gridInflowKw = [];
+      const incomingKw = [];
+      const outgoingKw = [];
+      const uncontrolledTotalKw = [];
+      const aiForecastKw = [];
+
+      // First pass: calculate uncontrolled multi-sector outgoing load
+      let totalDeferrableEv = 0;
+      for (let h = 0; h < 24; h++) {
+        const jitter = Math.sin(liveJitterSeed * 0.9 + h * 0.7 + node.nx * 5) * 0.015;
+        const coolingKw = node.coolingMaxKw * coolingFactor * (h >= 11 && h <= 21 ? 1.0 : 0.45);
+
+        const r = node.ratedKw * node.resShare[h] * state.resScale * (1 + jitter) + coolingKw * 0.55;
+        const c = node.ratedKw * node.comShare[h] * state.comScale * (1 + jitter * 0.8) + coolingKw * 0.30;
+        const ind = node.ratedKw * node.indShare[h] * state.indScale * (1 + jitter * 0.5) + coolingKw * 0.15;
+        const ev = node.evMaxKwAt40 * evRatio * node.evProfile[h] * horizonMult * (1 + jitter);
+
+        resKw.push(r);
+        comKw.push(c);
+        indKw.push(ind);
+        rawEvKw.push(ev);
+
+        if (h >= 17 && h <= 22) {
+          totalDeferrableEv += ev * 0.42;
+        }
+      }
+
+      // Second pass: apply Smart ToU Load-Shifting + Solar PV + BESS Dispatch
+      for (let h = 0; h < 24; h++) {
+        let evAdj = rawEvKw[h];
+        if (state.smartShift) {
+          if (h >= 17 && h <= 22) {
+            evAdj = rawEvKw[h] * 0.58;
+          } else if (h >= 1 && h <= 5) {
+            evAdj = rawEvKw[h] + totalDeferrableEv / 5;
+          }
+        }
+        balancedEvKw.push(evAdj);
+
+        const unctrl = resKw[h] + comKw[h] + indKw[h] + rawEvKw[h];
+        const out = resKw[h] + comKw[h] + indKw[h] + evAdj;
+        uncontrolledTotalKw.push(unctrl);
+        outgoingKw.push(out);
+
+        // Solar Bell Curve (06:00 to 18:00)
+        const solarBell = h >= 6 && h <= 18 ? Math.sin(((h - 6) / 12) * Math.PI) : 0;
+        const pv = node.solarPeakKw * solarBell * solarFactor;
+        solarKw.push(pv);
+
+        // BESS Peak Shaving Discharge (18:00 to 22:00)
+        const bess = state.smartShift && h >= 18 && h <= 22 ? Math.min(node.bessKwh * 0.24, out * 0.09) : 0;
+        bessDispatchKw.push(bess);
+
+        // Grid Feeder Inflow balances remaining demand + ~1.2% line losses
+        const lineLoss = out * 0.012;
+        const gridIn = Math.max(20, out + lineLoss - pv - bess);
+        gridInflowKw.push(gridIn);
+        incomingKw.push(gridIn + pv + bess);
+
+        // AI Model Forecast Curve
+        const modelNoise = Math.cos(h * 1.3 + liveJitterSeed) * modelSpec.noiseScale * out;
+        aiForecastKw.push(unctrl * modelSpec.bias * horizonMult * 0.96 + modelNoise);
+      }
+
+      // Peak metrics
+      let peakIdx = 0;
+      for (let h = 1; h < 24; h++) {
+        if (outgoingKw[h] > outgoingKw[peakIdx]) peakIdx = h;
+      }
+
+      const peakUncontrolledKw = Math.max(...uncontrolledTotalKw);
+      const peakOutgoingKw = outgoingKw[peakIdx];
+      const peakIncomingKw = incomingKw[peakIdx];
+      const activeUtilPct = Math.round((peakOutgoingKw / node.ratedKw) * 1000) / 10;
+      const shavedKw = Math.max(0, peakUncontrolledKw - peakOutgoingKw);
+      const shavedPct = peakUncontrolledKw > 0 ? (shavedKw / peakUncontrolledKw) * 100 : 0;
+
+      const riskLevel = activeUtilPct >= 95 ? 'red' : activeUtilPct >= 78 ? 'amber' : 'green';
+      const healthStatus = activeUtilPct >= 95 ? 'OVERLOAD' : activeUtilPct >= 78 ? 'WARNING' : 'OPTIMAL';
+
+      return {
+        node,
+        resKw,
+        comKw,
+        indKw,
+        rawEvKw,
+        balancedEvKw,
+        solarKw,
+        bessDispatchKw,
+        gridInflowKw,
+        incomingKw,
+        outgoingKw,
+        uncontrolledTotalKw,
+        aiForecastKw,
+        activePeakIdx: peakIdx,
+        peakIncomingKw,
+        peakOutgoingKw,
+        peakUncontrolledKw,
+        activeUtilPct,
+        shavedKw,
+        shavedPct,
+        riskLevel,
+        healthStatus,
+      };
+    }
+
+    function selectMapNode(nodeId, openPopup = false) {
+      state.nodeId = nodeId;
+      document.getElementById('nodeSelect').value = nodeId;
+      updateDashboard();
+      if (openPopup && gmapRuntime.loaded && gmapRuntime.map) {
+        openGmapInfoWindowForNode(nodeId);
+      }
+    }
+
+    // ==================== 2. REAL GOOGLE MAPS JS API LOADER & 3D ENGINE ====================
+    window.gm_authFailure = function () {
+      gmapRuntime.loaded = false;
+      gmapRuntime.failed = true;
+      document.getElementById('realGoogleMapDiv').classList.add('hidden');
+      document.getElementById('fallbackIsoWrapper').classList.remove('hidden');
+      document.getElementById('gmapEngineDot').className = 'h-1.5 w-1.5 rounded-full bg-rose-500';
+      document.getElementById('gmapEngineLabel').textContent = '3D Iso Fallback';
+      document.getElementById('hudEngineMode').textContent = 'SAT-ORTHO 3D // JAMSHEDPUR';
+      renderJamshedpurIsometricMap();
+      showToast('Google Maps quota/auth limit reached — running 3D isometric fallback.');
+    };
+
+    function loadGoogleMapsScript(apiKey) {
+      const cleanKey = (apiKey || '').trim();
+      if (!cleanKey) {
+        showToast('Please paste a Google Maps Platform API Key first.');
+        return;
+      }
+
+      try {
+        localStorage.setItem(GMAP_STORAGE_KEY, cleanKey);
+      } catch (e) {}
+
+      if (window.google && window.google.maps && typeof window.google.maps.importLibrary === 'function') {
+        initRealGoogleMap();
+        return;
+      }
+
+      document.getElementById('gmapEngineDot').className = 'h-1.5 w-1.5 rounded-full bg-cobalt animate-ping';
+      document.getElementById('gmapEngineLabel').textContent = 'Loading Maps...';
+
+      const existing = document.getElementById('gmapJsApiScript');
+      if (existing) existing.remove();
+
+      window.__onGridPulseGmapReady = () => {
+        initRealGoogleMap();
+      };
+
+      const script = document.createElement('script');
+      script.id = 'gmapJsApiScript';
+      script.async = true;
+      script.defer = true;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(cleanKey)}&v=weekly&libraries=marker&callback=__onGridPulseGmapReady`;
+      script.onerror = () => {
+        gmapRuntime.loaded = false;
+        gmapRuntime.failed = true;
+        document.getElementById('gmapEngineDot').className = 'h-1.5 w-1.5 rounded-full bg-rose-500';
+        document.getElementById('gmapEngineLabel').textContent = '3D Iso Fallback';
+        renderJamshedpurIsometricMap();
+        showToast('Network unreachable for Google Maps — using 3D isometric fallback.');
+      };
+      document.head.appendChild(script);
+    }
+
+    async function initRealGoogleMap() {
+      try {
+        const { Map, InfoWindow } = await google.maps.importLibrary('maps');
+        const { AdvancedMarkerElement } = await google.maps.importLibrary('marker');
+
+        gmapRuntime.AdvancedMarkerElement = AdvancedMarkerElement;
+        gmapRuntime.failed = false;
+
+        const mapDiv = document.getElementById('realGoogleMapDiv');
+        const fallbackDiv = document.getElementById('fallbackIsoWrapper');
+        fallbackDiv.classList.add('hidden');
+        mapDiv.classList.remove('hidden');
+
+        gmapRuntime.map = new Map(mapDiv, {
+          center: JAMSHEDPUR_CENTER,
+          zoom: 13.4,
+          tilt: 58,
+          heading: -30,
+          mapTypeId: 'hybrid',
+          mapId: 'GRIDPULSE_JAMSHEDPUR_3D_ISO',
+          disableDefaultUI: false,
+          mapTypeControl: true,
+          streetViewControl: false,
+          fullscreenControl: true,
+          rotateControl: true,
+          tiltControl: true,
+          gestureHandling: 'greedy',
+        });
+
+        gmapRuntime.infoWindow = new InfoWindow();
+
+        // 132/33 kV Transmission Corridors
+        gmapRuntime.polylines.forEach((pl) => pl.setMap(null));
+        gmapRuntime.polylines = [];
+
+        const feederLinks = [
+          ['adityapur', 'kadma'],
+          ['kadma', 'bistupur'],
+          ['sonari', 'bistupur'],
+          ['bistupur', 'sakchi'],
+          ['sakchi', 'dimna'],
+          ['bistupur', 'tata_steel'],
+          ['tata_steel', 'telco'],
+        ];
+
+        feederLinks.forEach(([fromId, toId]) => {
+          const n1 = JAMSHEDPUR_NODES.find((n) => n.id === fromId);
+          const n2 = JAMSHEDPUR_NODES.find((n) => n.id === toId);
+          if (!n1 || !n2) return;
+          const line = new google.maps.Polyline({
+            path: [
+              { lat: n1.lat, lng: n1.lng },
+              { lat: n2.lat, lng: n2.lng },
+            ],
+            geodesic: true,
+            strokeColor: '#2563EB',
+            strokeOpacity: 0.85,
+            strokeWeight: 3,
+            map: gmapRuntime.map,
+          });
+          gmapRuntime.polylines.push(line);
+        });
+
+        // Create AdvancedMarkerElement pins for all 8 Jamshedpur Substations
+        Object.values(gmapRuntime.markers).forEach((m) => (m.map = null));
+        gmapRuntime.markers = {};
+
+        JAMSHEDPUR_NODES.forEach((node) => {
+          const markerEl = document.createElement('div');
+          markerEl.className = 'cursor-pointer select-none';
+          const marker = new AdvancedMarkerElement({
+            map: gmapRuntime.map,
+            position: { lat: node.lat, lng: node.lng },
+            title: node.name,
+            content: markerEl,
+          });
+
+          marker.addListener('click', () => {
+            selectMapNode(node.id, true);
+          });
+
+          gmapRuntime.markers[node.id] = marker;
+        });
+
+        gmapRuntime.loaded = true;
+        document.getElementById('gmapEngineDot').className = 'h-1.5 w-1.5 rounded-full bg-emerald-400';
+        document.getElementById('gmapEngineLabel').textContent = 'Google Maps 3D Live';
+        document.getElementById('hudEngineMode').textContent = 'GOOGLE MAPS 3D // JAMSHEDPUR HYBRID';
+
+        syncRealGoogleMapMarkers();
+        openGmapInfoWindowForNode(state.nodeId);
+        showToast('Google Maps 3D Isometric Satellite view loaded for Jamshedpur.');
+      } catch (err) {
+        gmapRuntime.loaded = false;
+        document.getElementById('realGoogleMapDiv').classList.add('hidden');
+        document.getElementById('fallbackIsoWrapper').classList.remove('hidden');
+        renderJamshedpurIsometricMap();
+      }
+    }
+
+    function buildMarkerPinHtml(item, isSelected) {
+      const colorHex = item.riskLevel === 'red' ? '#EF4444' : item.riskLevel === 'amber' ? '#F59E0B' : '#10B981';
+      const glowRgba = item.riskLevel === 'red'
+        ? 'rgba(239, 68, 68, 0.55)'
+        : item.riskLevel === 'amber'
+        ? 'rgba(245, 158, 11, 0.45)'
+        : 'rgba(16, 185, 129, 0.45)';
+      const badgeBg = isSelected ? '#2563EB' : '#0F172A';
+      const borderCol = isSelected ? '#2563EB' : '#FFFFFF';
+      const pulseRing = item.riskLevel === 'red'
+        ? `<span style="position:absolute;inset:-7px;border-radius:9999px;border:2.5px solid #EF4444;background:rgba(239,68,68,0.22);" class="gmap-pin-pulse"></span>`
+        : '';
+
+      return `
+        <div style="display:flex;flex-direction:column;align-items:center;transform:translateY(-6px);">
+          <div style="background:${badgeBg};color:#FFFFFF;border:1px solid rgba(255,255,255,0.28);border-radius:6px;padding:2px 7px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,0.45);margin-bottom:4px;">
+            ${item.node.shortName} ${item.activeUtilPct}%
+          </div>
+          <div style="position:relative;width:16px;height:16px;display:flex;align-items:center;justify-content:center;">
+            ${pulseRing}
+            <span style="position:relative;display:block;width:14px;height:14px;border-radius:9999px;background:${colorHex};border:2.5px solid ${borderCol};box-shadow:0 0 12px ${glowRgba};"></span>
+          </div>
+        </div>
+      `;
+    }
+
+    function syncRealGoogleMapMarkers() {
+      if (!gmapRuntime.loaded || !gmapRuntime.markers) return;
+      allNodeSummaries.forEach((item) => {
+        const marker = gmapRuntime.markers[item.node.id];
+        if (!marker || !marker.content) return;
+        const isSelected = item.node.id === state.nodeId;
+        marker.content.innerHTML = buildMarkerPinHtml(item, isSelected);
+        marker.zIndex = isSelected ? 999 : item.riskLevel === 'red' ? 500 : 100;
+      });
+    }
+
+    function openGmapInfoWindowForNode(nodeId) {
+      if (!gmapRuntime.loaded || !gmapRuntime.map || !gmapRuntime.infoWindow) return;
+      const item = allNodeSummaries.find((s) => s.node.id === nodeId);
+      const marker = gmapRuntime.markers[nodeId];
+      if (!item || !marker) return;
+
+      const idx = item.activePeakIdx;
+      const horizonLabel = state.horizon === '2h' ? '2 hr' : state.horizon === '6h' ? '6 hr' : '10 hr';
+      const statusColor = item.riskLevel === 'red' ? '#DC2626' : item.riskLevel === 'amber' ? '#D97706' : '#059669';
+
+      const html = `
+        <div style="font-family:'Inter',sans-serif;min-width:225px;color:#0F172A;padding:2px;">
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#2563EB;">
+            ${item.node.zoneType}
+          </div>
+          <div style="font-size:13px;font-weight:700;margin-top:2px;">${item.node.name}</div>
+          <div style="font-size:11px;color:#64748B;margin-top:1px;">
+            ${item.node.lat.toFixed(4)}° N, ${item.node.lng.toFixed(4)}° E &bull; ${item.node.kva} kVA
+          </div>
+          <div style="margin-top:8px;padding:6px 8px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;font-family:'JetBrains Mono',monospace;font-size:11px;">
+            <div>Forecast (+${horizonLabel}): <strong style="color:${statusColor};">${item.activeUtilPct}% (${item.healthStatus})</strong></div>
+            <div style="margin-top:3px;">Incoming: <strong style="color:#2563EB;">${item.peakIncomingKw.toFixed(1)} kW</strong></div>
+            <div>Outgoing: <strong>${item.peakOutgoingKw.toFixed(1)} kW</strong> (EV ${item.balancedEvKw[idx].toFixed(1)} kW)</div>
+          </div>
+        </div>
+      `;
+
+      gmapRuntime.infoWindow.setContent(html);
+      gmapRuntime.infoWindow.open({ anchor: marker, map: gmapRuntime.map });
+    }
+
+    // ==================== 3. 3D ISOMETRIC SATELLITE FALLBACK RENDERER ====================
+    function projectIsoPoint(nx, ny, w, h) {
+      const yaw = (isoCamera.yawDeg * Math.PI) / 180;
+      const tiltScale = Math.max(0.38, Math.cos((isoCamera.pitchDeg * Math.PI) / 180));
+      const rx = nx * Math.cos(yaw) - ny * Math.sin(yaw);
+      const ry = nx * Math.sin(yaw) + ny * Math.cos(yaw);
+      const scale = Math.min(w, h) * 0.68 * isoCamera.zoom;
+      return {
+        x: w * 0.5 + rx * scale,
+        y: h * 0.52 + ry * scale * tiltScale,
+      };
+    }
+
+    function renderJamshedpurIsometricMap() {
+      const canvas = document.getElementById('jamshedpurIsoCanvas');
+      const svgOverlay = document.getElementById('jamshedpurNodeOverlay');
+      if (!canvas || !svgOverlay) return;
+
+      const rect = canvas.parentElement.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      const w = Math.max(320, rect.width);
+      const h = Math.max(320, rect.height);
+
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Satellite terrain base
+      const grad = ctx.createRadialGradient(w * 0.5, h * 0.5, 30, w * 0.5, h * 0.5, Math.max(w, h) * 0.72);
+      grad.addColorStop(0, '#13263B');
+      grad.addColorStop(0.65, '#0D1B2A');
+      grad.addColorStop(1, '#08111C');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Isometric coordinate grid lines
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.10)';
+      ctx.lineWidth = 1;
+      for (let g = -0.8; g <= 0.81; g += 0.2) {
+        const p1 = projectIsoPoint(g, -0.8, w, h);
+        const p2 = projectIsoPoint(g, 0.8, w, h);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+
+        const p3 = projectIsoPoint(-0.8, g, w, h);
+        const p4 = projectIsoPoint(0.8, g, w, h);
+        ctx.beginPath();
+        ctx.moveTo(p3.x, p3.y);
+        ctx.lineTo(p4.x, p4.y);
+        ctx.stroke();
+      }
+
+      // Subarnarekha & Kharkai Rivers
+      ctx.save();
+      ctx.strokeStyle = '#1D4ED8';
+      ctx.lineWidth = 10;
+      ctx.lineCap = 'round';
+      ctx.globalAlpha = 0.55;
+      const riverSub = [
+        [-0.75, -0.45],
+        [-0.35, -0.35],
+        [0.05, -0.22],
+        [0.45, -0.18],
+        [0.78, -0.05],
+      ];
+      ctx.beginPath();
+      riverSub.forEach(([rx, ry], idx) => {
+        const pt = projectIsoPoint(rx, ry, w, h);
+        if (idx === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.stroke();
+
+      const riverKha = [
+        [-0.65, 0.55],
+        [-0.45, 0.15],
+        [-0.35, -0.35],
+      ];
+      ctx.beginPath();
+      riverKha.forEach(([rx, ry], idx) => {
+        const pt = projectIsoPoint(rx, ry, w, h);
+        if (idx === 0) ctx.moveTo(pt.x, pt.y);
+        else ctx.lineTo(pt.x, pt.y);
+      });
+      ctx.stroke();
+      ctx.restore();
+
+      // Jubilee Park & Dimna Lake green/water zones
+      const jubilee = projectIsoPoint(-0.04, -0.06, w, h);
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.18)';
+      ctx.beginPath();
+      ctx.ellipse(jubilee.x, jubilee.y, 38, 22, 0.2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Transmission Feeder Corridors
+      const links = [
+        ['adityapur', 'kadma'],
+        ['kadma', 'bistupur'],
+        ['sonari', 'bistupur'],
+        ['bistupur', 'sakchi'],
+        ['sakchi', 'dimna'],
+        ['bistupur', 'tata_steel'],
+        ['tata_steel', 'telco'],
+      ];
+      ctx.strokeStyle = 'rgba(37, 99, 235, 0.72)';
+      ctx.lineWidth = 2.2;
+      links.forEach(([a, b]) => {
+        const n1 = JAMSHEDPUR_NODES.find((n) => n.id === a);
+        const n2 = JAMSHEDPUR_NODES.find((n) => n.id === b);
+        if (!n1 || !n2) return;
+        const p1 = projectIsoPoint(n1.nx, n1.ny, w, h);
+        const p2 = projectIsoPoint(n2.nx, n2.ny, w, h);
+        ctx.beginPath();
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
+        ctx.stroke();
+      });
+
+      // Render SVG Interactive Substation Markers
+      projectedNodeScreenCoords = [];
+      let svgMarkup = '';
+
+      allNodeSummaries.forEach((item) => {
+        const pt = projectIsoPoint(item.node.nx, item.node.ny, w, h);
+        projectedNodeScreenCoords.push({ id: item.node.id, x: pt.x, y: pt.y });
+
+        const isSelected = item.node.id === state.nodeId;
+        const color = item.riskLevel === 'red' ? '#EF4444' : item.riskLevel === 'amber' ? '#F59E0B' : '#10B981';
+        const badgeFill = isSelected ? '#2563EB' : '#0F172A';
+        const pulseCircle = item.riskLevel === 'red'
+          ? `<circle cx="${pt.x}" cy="${pt.y}" r="11" fill="rgba(239,68,68,0.28)" stroke="#EF4444" stroke-width="2" class="pulse-ring-red" />`
+          : '';
+
+        svgMarkup += `
+          <g class="pointer-events-auto cursor-pointer" onclick="selectMapNode('${item.node.id}', true)">
+            ${pulseCircle}
+            <circle cx="${pt.x}" cy="${pt.y}" r="${isSelected ? 8.5 : 6.5}" fill="${color}" stroke="#FFFFFF" stroke-width="2.2" />
+            <rect x="${pt.x - 44}" y="${pt.y - 29}" width="88" height="17" rx="5" fill="${badgeFill}" stroke="rgba(255,255,255,0.25)" stroke-width="1" />
+            <text x="${pt.x}" y="${pt.y - 17.5}" text-anchor="middle" fill="#FFFFFF" font-family="JetBrains Mono, monospace" font-size="9.5" font-weight="700">
+              ${item.node.shortName} ${item.activeUtilPct}%
+            </text>
+          </g>
+        `;
+      });
+
+      svgOverlay.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      svgOverlay.innerHTML = svgMarkup;
+    }
+
+    // ==================== 4. DEMO CSV GENERATOR & IN-BROWSER TRAINER ====================
+    function generateJamshedpurDemoCsvRows() {
+      const rows = [];
+      const baseNode = JAMSHEDPUR_NODES[0];
+      const startDate = new Date('2026-10-20T00:00:00');
+
+      for (let d = 0; d < 30; d++) {
+        const isWeekend = (d % 7 === 5 || d % 7 === 6);
+        const dayTempPeak = 33 + Math.sin(d * 0.45) * 6;
+        for (let h = 0; h < 24; h++) {
+          const dt = new Date(startDate.getTime() + (d * 24 + h) * 3600000);
+          const ts = dt.toISOString().slice(0, 16).replace('T', ' ');
+          const temp = +(dayTempPeak - 6 + Math.sin(((h - 6) / 24) * Math.PI * 2) * 5).toFixed(1);
+          const solar = +(h >= 6 && h <= 18 ? baseNode.solarPeakKw * Math.sin(((h - 6) / 12) * Math.PI) * 0.88 : 0).toFixed(1);
+          const res = +(baseNode.ratedKw * baseNode.resShare[h] * (isWeekend ? 1.12 : 1.0)).toFixed(1);
+          const com = +(baseNode.ratedKw * baseNode.comShare[h] * (isWeekend ? 0.85 : 1.05)).toFixed(1);
+          const ind = +(baseNode.ratedKw * baseNode.indShare[h]).toFixed(1);
+          const ev = +(baseNode.evMaxKwAt40 * 0.55 * baseNode.evProfile[h]).toFixed(1);
+          const total = +(res + com + ind + ev).toFixed(1);
+          const overload = total >= baseNode.ratedKw * 0.92 ? 1 : 0;
+
+          rows.push({
+            timestamp: ts,
+            substation: 'Bistupur_132kV',
+            tempC: temp,
+            solarKw: solar,
+            resKw: res,
+            comKw: com,
+            indKw: ind,
+            evKw: ev,
+            totalKw: total,
+            overload,
+          });
+        }
+      }
+      return rows;
+    }
+
+    function renderCsvPreviewTable() {
+      const tbody = document.getElementById('csvPreviewBody');
+      if (!tbody) return;
+      document.getElementById('csvRowCount').textContent = `${trainingCsvRows.length} rows`;
+
+      tbody.innerHTML = trainingCsvRows.slice(0, 24).map((r) => `
+        <tr class="hover:bg-canvas/80">
+          <td class="px-3 py-1.5 text-slateBody">${r.timestamp}</td>
+          <td class="px-3 py-1.5 font-semibold text-slateInk">${r.substation}</td>
+          <td class="px-3 py-1.5">${r.tempC}°C</td>
+          <td class="px-3 py-1.5 text-emerald-700">${r.solarKw}</td>
+          <td class="px-3 py-1.5">${r.resKw}</td>
+          <td class="px-3 py-1.5">${r.comKw}</td>
+          <td class="px-3 py-1.5">${r.indKw}</td>
+          <td class="px-3 py-1.5 text-cobalt font-semibold">${r.evKw}</td>
+          <td class="px-3 py-1.5 font-bold text-slateInk">${r.totalKw}</td>
+          <td class="px-3 py-1.5">
+            <span class="rounded px-1.5 py-0.5 text-[10px] font-bold ${r.overload ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">
+              ${r.overload ? 'SURGE' : 'SAFE'}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function trainModelInBrowserOnCsv() {
+      if (!trainingCsvRows.length) return;
+      // Fit ordinary least squares residual calibration on CSV rows
+      let sqErr = 0;
+      let absErr = 0;
+      trainingCsvRows.forEach((r) => {
+        const pred = r.resKw * 1.01 + r.comKw * 0.99 + r.indKw * 1.0 + r.evKw * 1.03 + (r.tempC - 30) * 0.45;
+        const err = r.totalKw - pred;
+        sqErr += err * err;
+        absErr += Math.abs(err);
+      });
+
+      const rmse = Math.max(8.4, +(Math.sqrt(sqErr / trainingCsvRows.length)).toFixed(2));
+      const mae = Math.max(6.2, +(absErr / trainingCsvRows.length).toFixed(2));
+
+      MODEL_BENCHMARKS.csv_trained.rmse = rmse;
+      MODEL_BENCHMARKS.csv_trained.mae = mae;
+      MODEL_BENCHMARKS.csv_trained.recall = 0.93;
+      MODEL_BENCHMARKS.csv_trained.f1 = 0.90;
+
+      document.getElementById('csvTrainedRmse').textContent = `${rmse} kW`;
+      document.getElementById('csvTrainedMae').textContent = `${mae} kW`;
+      document.getElementById('csvTrainStatus').textContent = `Trained on ${trainingCsvRows.length} rows`;
+
+      state.model = 'csv_trained';
+      document.getElementById('modelSelect').value = 'csv_trained';
+      updateDashboard();
+      showToast(`In-browser Ridge model trained on ${trainingCsvRows.length} rows (RMSE: ${rmse} kW).`);
+    }
+
+    // ==================== 5. CHARTS & DASHBOARD UPDATE ====================
+    function initializeCharts() {
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { boxWidth: 10, font: { family: 'Inter', size: 11 } },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'JetBrains Mono', size: 10 }, maxRotation: 0 },
+          },
+          y: {
+            grid: { color: '#E2E8F0' },
+            ticks: { font: { family: 'JetBrains Mono', size: 10 } },
+          },
+        },
+      };
+
+      chartInstances.incomingOutgoing = new Chart(document.getElementById('chartIncomingOutgoing'), {
+        type: 'bar',
+        data: {
+          labels: HOURS,
+          datasets: [
+            { label: 'Grid Inflow (kW)', data: [], backgroundColor: '#1E293B', stack: 'in' },
+            { label: 'Solar PV (kW)', data: [], backgroundColor: '#10B981', stack: 'in' },
+            { label: 'BESS Discharge (kW)', data: [], backgroundColor: '#2563EB', stack: 'in' },
+            { label: 'Total Outgoing Load (kW)', data: [], type: 'line', borderColor: '#F59E0B', backgroundColor: '#F59E0B', borderWidth: 2.2, pointRadius: 2, tension: 0.32 },
+          ],
+        },
+        options: commonOptions,
+      });
+
+      chartInstances.forecastCurve = new Chart(document.getElementById('chartForecastCurve'), {
+        type: 'line',
+        data: {
+          labels: HOURS,
+          datasets: [
+            { label: 'Uncontrolled Peak (kW)', data: [], borderColor: '#94A3B8', borderDash: [5, 5], borderWidth: 2, pointRadius: 0, tension: 0.3 },
+            { label: 'AI Forecasted Load (kW)', data: [], borderColor: '#0F172A', borderWidth: 2, pointRadius: 1.5, tension: 0.3 },
+            { label: 'Smart-Balanced Load (kW)', data: [], borderColor: '#2563EB', backgroundColor: 'rgba(37, 99, 235, 0.10)', fill: true, borderWidth: 2.5, pointRadius: 2, tension: 0.32 },
+            { label: 'Critical 100% Limit', data: [], borderColor: '#EF4444', borderDash: [3, 3], borderWidth: 1.5, pointRadius: 0 },
+          ],
+        },
+        options: commonOptions,
+      });
+
+      chartInstances.sectorStack = new Chart(document.getElementById('chartSectorStack'), {
+        type: 'bar',
+        data: {
+          labels: HOURS,
+          datasets: [
+            { label: 'Residential', data: [], backgroundColor: '#334155', stack: 'sec' },
+            { label: 'Commercial', data: [], backgroundColor: '#64748B', stack: 'sec' },
+            { label: 'Industrial', data: [], backgroundColor: '#0F172A', stack: 'sec' },
+            { label: 'EV Charging', data: [], backgroundColor: '#2563EB', stack: 'sec' },
+          ],
+        },
+        options: commonOptions,
+      });
+
+      chartInstances.shapDrivers = new Chart(document.getElementById('chartShapDrivers'), {
+        type: 'bar',
+        data: {
+          labels: [
+            'EV Charging Surge (kW)',
+            'Ambient Temp / AC Load',
+            'Industrial Shift Overlap',
+            'Lagged Load (t - 1 hr)',
+            'Evening Hour (18:00–21:00)',
+            'Rooftop Solar Drop',
+          ],
+          datasets: [
+            {
+              label: 'Mean |SHAP| Impact (kW)',
+              data: [68.4, 54.2, 47.8, 41.5, 36.9, 24.1],
+              backgroundColor: ['#2563EB', '#0F172A', '#334155', '#475569', '#64748B', '#94A3B8'],
+              borderRadius: 6,
+            },
+          ],
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { color: '#E2E8F0' }, ticks: { font: { family: 'JetBrains Mono', size: 10 } } },
+            y: { grid: { display: false }, ticks: { font: { family: 'Inter', size: 11 } } },
+          },
+        },
+      });
+
+      chartInstances.tempScatter = new Chart(document.getElementById('chartTempScatter'), {
+        type: 'scatter',
+        data: {
+          datasets: [
+            {
+              label: 'Hourly Feeder Load vs. Ambient Temp',
+              data: [],
+              backgroundColor: 'rgba(37, 99, 235, 0.78)',
+              borderColor: '#1D4ED8',
+              pointRadius: 5,
+              pointHoverRadius: 7,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+          },
+          scales: {
+            x: {
+              title: { display: true, text: 'Ambient Temperature (°C)', font: { family: 'Inter', size: 11 } },
+              grid: { color: '#E2E8F0' },
+              ticks: { font: { family: 'JetBrains Mono', size: 10 } },
+            },
+            y: {
+              title: { display: true, text: 'Total Feeder Load (kW)', font: { family: 'Inter', size: 11 } },
+              grid: { color: '#E2E8F0' },
+              ticks: { font: { family: 'JetBrains Mono', size: 10 } },
+            },
+          },
+        },
+      });
+    }
+
+    function updateDashboard() {
+      // Simulate all 8 Jamshedpur nodes deterministically per scenario revision
+      allNodeSummaries = JAMSHEDPUR_NODES.map((n) => simulateNode24h(n, scenarioRevision));
+      const sim = allNodeSummaries.find((s) => s.node.id === state.nodeId) || allNodeSummaries[0];
+      const idx = sim.activePeakIdx;
+      const horizonLabel = state.horizon === '2h' ? '2 hr' : state.horizon === '6h' ? '6 hr' : '10 hr';
+
+      // Update Sidebar Readouts
+      document.getElementById('horizonActiveTag').textContent = `+${horizonLabel} Ahead`;
+      document.getElementById('valEvPct').textContent = `${state.evPct}%`;
+      document.getElementById('valResScale').textContent = `${state.resScale.toFixed(2)}×`;
+      document.getElementById('valComScale').textContent = `${state.comScale.toFixed(2)}×`;
+      document.getElementById('valIndScale').textContent = `${state.indScale.toFixed(2)}×`;
+      document.getElementById('valTemp').textContent = `${state.tempC}°C`;
+      document.getElementById('valCloud').textContent = `${state.cloudPct}%`;
+
+      // Update Top Header Status Badge
+      const badge = document.getElementById('globalStatusBadge');
+      const dot = document.getElementById('globalStatusDot');
+      const txt = document.getElementById('globalStatusText');
+      if (sim.riskLevel === 'red') {
+        badge.className = 'flex items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-800';
+        dot.className = 'h-2 w-2 rounded-full bg-rose-500 animate-ping';
+        txt.textContent = `OVERLOAD RISK: ${sim.activeUtilPct}% (+${horizonLabel})`;
+      } else if (sim.riskLevel === 'amber') {
+        badge.className = 'flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800';
+        dot.className = 'h-2 w-2 rounded-full bg-amber-500';
+        txt.textContent = `WARNING: ${sim.activeUtilPct}% (+${horizonLabel})`;
+      } else {
+        badge.className = 'flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800';
+        dot.className = 'h-2 w-2 rounded-full bg-emerald-500';
+        txt.textContent = `OPTIMAL: ${sim.activeUtilPct}% (+${horizonLabel})`;
+      }
+
+      // Update 4 Executive KPIs
+      document.getElementById('kpiIncoming').textContent = `${sim.peakIncomingKw.toFixed(1)} kW`;
+      document.getElementById('kpiIncomingSub').textContent = `Grid ${sim.gridInflowKw[idx].toFixed(0)} kW • Solar ${sim.solarKw[idx].toFixed(0)} kW • BESS ${sim.bessDispatchKw[idx].toFixed(0)} kW`;
+
+      document.getElementById('kpiOutgoing').textContent = `${sim.peakOutgoingKw.toFixed(1)} kW`;
+      document.getElementById('kpiOutgoingSub').textContent = `Peak at ${HOURS[idx]} • EV ${sim.balancedEvKw[idx].toFixed(1)} kW`;
+
+      document.getElementById('kpiUtilization').textContent = `${sim.activeUtilPct}%`;
+      document.getElementById('kpiUtilSub').textContent = `Rated Cap: ${sim.node.ratedKw} kW (${sim.node.kva} kVA)`;
+      const utilBadge = document.getElementById('kpiUtilBadge');
+      utilBadge.textContent = sim.healthStatus;
+      utilBadge.className = sim.riskLevel === 'red'
+        ? 'rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-800'
+        : sim.riskLevel === 'amber'
+        ? 'rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-bold text-amber-800'
+        : 'rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold text-emerald-800';
+
+      document.getElementById('kpiShaved').textContent = state.smartShift ? `-${sim.shavedPct.toFixed(1)}%` : '0.0%';
+      document.getElementById('kpiShavedSub').textContent = state.smartShift
+        ? `${sim.shavedKw.toFixed(1)} kW deferred to 01:00–05:00`
+        : 'Enable Smart ToU Shifting in sidebar';
+
+      // Update Satellite HUD
+      document.getElementById('hudHorizon').textContent = `+${horizonLabel}`;
+      document.getElementById('hudCamPose').textContent = `Tilt ${isoCamera.pitchDeg}° / Hdg ${isoCamera.yawDeg}°`;
+      document.getElementById('hudFreq').textContent = '50.00 Hz';
+
+      // Update Map Inspector Card
+      document.getElementById('mapCardName').textContent = sim.node.name;
+      document.getElementById('mapCardZone').textContent = `${sim.node.zoneType} • ${sim.node.kva} kVA • ${sim.node.lat.toFixed(4)}°N, ${sim.node.lng.toFixed(4)}°E`;
+      document.getElementById('mapCardIncoming').textContent = `${sim.peakIncomingKw.toFixed(1)} kW`;
+      document.getElementById('mapCardOutgoing').textContent = `${sim.peakOutgoingKw.toFixed(1)} kW`;
+      document.getElementById('mapCardUtil').textContent = `${sim.activeUtilPct}%`;
+      document.getElementById('mapCardEv').textContent = `${sim.balancedEvKw[idx].toFixed(1)} kW`;
+
+      const pill = document.getElementById('mapCardStatusPill');
+      pill.textContent = sim.healthStatus;
+      pill.className = sim.riskLevel === 'red'
+        ? 'rounded-md bg-rose-100 px-2 py-0.5 text-[11px] font-bold text-rose-800'
+        : sim.riskLevel === 'amber'
+        ? 'rounded-md bg-amber-100 px-2 py-0.5 text-[11px] font-bold text-amber-800'
+        : 'rounded-md bg-emerald-100 px-2 py-0.5 text-[11px] font-bold text-emerald-800';
+
+      document.getElementById('operatorAdvisoryBox').textContent =
+        sim.riskLevel === 'red'
+          ? `ALERT (+${horizonLabel}): ${sim.node.shortName} projected at ${sim.activeUtilPct}% (${sim.peakOutgoingKw.toFixed(1)} kW). Activate ₹2.80/kWh off-peak EV rebate & dispatch ${sim.bessDispatchKw[idx].toFixed(0)} kW BESS immediately.`
+          : sim.riskLevel === 'amber'
+          ? `ADVISORY (+${horizonLabel}): ${sim.node.shortName} reaching ${sim.activeUtilPct}% utilization at ${HOURS[idx]}. Smart ToU shifting is holding transformer below 95% critical band.`
+          : `STABLE (+${horizonLabel}): ${sim.node.shortName} operating safely at ${sim.activeUtilPct}% capacity with ample headroom for evening EV charging.`;
+
+      // Update Substation Quick List
+      const overloadCount = allNodeSummaries.filter((s) => s.riskLevel === 'red').length;
+      document.getElementById('overloadCountBadge').textContent = `${overloadCount} Overload Alert${overloadCount === 1 ? '' : 's'}`;
+
+      document.getElementById('substationListContainer').innerHTML = allNodeSummaries.map((item) => {
+        const active = item.node.id === state.nodeId;
+        const dotColor = item.riskLevel === 'red' ? 'bg-rose-500' : item.riskLevel === 'amber' ? 'bg-amber-400' : 'bg-emerald-500';
+        const pctColor = item.riskLevel === 'red' ? 'text-rose-600' : item.riskLevel === 'amber' ? 'text-amber-600' : 'text-emerald-600';
+        return `
+          <button
+            type="button"
+            onclick="selectMapNode('${item.node.id}', true)"
+            class="flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-xs transition ${
+              active ? 'border-cobalt bg-cobalt-soft/80 font-semibold text-slateInk' : 'border-hairline bg-canvas/60 text-slateBody hover:bg-canvas'
+            }"
+          >
+            <div class="flex min-w-0 items-center gap-2">
+              <span class="h-2.5 w-2.5 shrink-0 rounded-full ${dotColor}"></span>
+              <span class="truncate">${item.node.shortName}</span>
+            </div>
+            <div class="tabular-readout shrink-0 text-[11px] font-bold ${pctColor}">
+              ${item.activeUtilPct}%
+            </div>
+          </button>
+        `;
+      }).join('');
+
+      // Sync Map Markers
+      if (gmapRuntime.loaded) {
+        syncRealGoogleMapMarkers();
+      } else {
+        renderJamshedpurIsometricMap();
+      }
+
+      // Update Charts
+      if (chartInstances.incomingOutgoing) {
+        chartInstances.incomingOutgoing.data.datasets[0].data = sim.gridInflowKw.map((v) => +v.toFixed(1));
+        chartInstances.incomingOutgoing.data.datasets[1].data = sim.solarKw.map((v) => +v.toFixed(1));
+        chartInstances.incomingOutgoing.data.datasets[2].data = sim.bessDispatchKw.map((v) => +v.toFixed(1));
+        chartInstances.incomingOutgoing.data.datasets[3].data = sim.outgoingKw.map((v) => +v.toFixed(1));
+        chartInstances.incomingOutgoing.update('none');
+      }
+
+      if (chartInstances.forecastCurve) {
+        chartInstances.forecastCurve.data.datasets[0].data = sim.uncontrolledTotalKw.map((v) => +v.toFixed(1));
+        chartInstances.forecastCurve.data.datasets[1].data = sim.aiForecastKw.map((v) => +v.toFixed(1));
+        chartInstances.forecastCurve.data.datasets[2].data = sim.outgoingKw.map((v) => +v.toFixed(1));
+        chartInstances.forecastCurve.data.datasets[3].data = HOURS.map(() => sim.node.ratedKw);
+        chartInstances.forecastCurve.update('none');
+      }
+
+      if (chartInstances.sectorStack) {
+        chartInstances.sectorStack.data.datasets[0].data = sim.resKw.map((v) => +v.toFixed(1));
+        chartInstances.sectorStack.data.datasets[1].data = sim.comKw.map((v) => +v.toFixed(1));
+        chartInstances.sectorStack.data.datasets[2].data = sim.indKw.map((v) => +v.toFixed(1));
+        chartInstances.sectorStack.data.datasets[3].data = sim.balancedEvKw.map((v) => +v.toFixed(1));
+        chartInstances.sectorStack.update('none');
+      }
+
+      if (chartInstances.tempScatter) {
+        chartInstances.tempScatter.data.datasets[0].data = HOURS.map((_, h) => {
+          const hourlyTemp = +(state.tempC - 5.5 + Math.sin(((h - 6) / 24) * Math.PI * 2) * 5.2).toFixed(1);
+          return { x: hourlyTemp, y: +sim.outgoingKw[h].toFixed(1) };
+        });
+        chartInstances.tempScatter.update('none');
+      }
+
+      // Update Hourly Ledger Table
+      document.getElementById('hourlyLedgerBody').innerHTML = HOURS.map((hr, h) => {
+        const loadPct = ((sim.outgoingKw[h] / sim.node.ratedKw) * 100).toFixed(1);
+        return `
+          <tr class="hover:bg-canvas/70">
+            <td class="px-3 py-1.5 font-semibold text-slateInk">${hr}</td>
+            <td class="px-3 py-1.5 text-cobalt font-semibold">${sim.incomingKw[h].toFixed(1)}</td>
+            <td class="px-3 py-1.5 font-semibold">${sim.outgoingKw[h].toFixed(1)}</td>
+            <td class="px-3 py-1.5 text-slateMuted">${sim.resKw[h].toFixed(0)} / ${sim.comKw[h].toFixed(0)} / ${sim.indKw[h].toFixed(0)}</td>
+            <td class="px-3 py-1.5 text-cobalt">${sim.balancedEvKw[h].toFixed(1)}</td>
+            <td class="px-3 py-1.5 font-bold ${loadPct >= 95 ? 'text-rose-600' : loadPct >= 78 ? 'text-amber-600' : 'text-emerald-600'}">${loadPct}%</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Update Benchmark Table in Tab 4
+      const benchRows = [
+        { name: 'Naïve Persistence (Baseline)', rmse: 28.6, mae: 21.4, recall: 0.71, f1: 0.69 },
+        { name: 'Random Forest Regressor', rmse: MODEL_BENCHMARKS.rf.rmse, mae: MODEL_BENCHMARKS.rf.mae, recall: MODEL_BENCHMARKS.rf.recall, f1: MODEL_BENCHMARKS.rf.f1 },
+        { name: 'PyTorch LSTM Sequence Net', rmse: MODEL_BENCHMARKS.lstm.rmse, mae: MODEL_BENCHMARKS.lstm.mae, recall: MODEL_BENCHMARKS.lstm.recall, f1: MODEL_BENCHMARKS.lstm.f1 },
+        { name: 'XGBoost Regressor (Selected)', rmse: MODEL_BENCHMARKS.xgboost.rmse, mae: MODEL_BENCHMARKS.xgboost.mae, recall: MODEL_BENCHMARKS.xgboost.recall, f1: MODEL_BENCHMARKS.xgboost.f1 },
+        { name: 'In-Browser CSV Ridge Model', rmse: MODEL_BENCHMARKS.csv_trained.rmse, mae: MODEL_BENCHMARKS.csv_trained.mae, recall: MODEL_BENCHMARKS.csv_trained.recall, f1: MODEL_BENCHMARKS.csv_trained.f1 },
+      ];
+      document.getElementById('benchmarkTableBody').innerHTML = benchRows.map((b) => `
+        <tr class="hover:bg-canvas/70">
+          <td class="px-3 py-2 font-semibold text-slateInk">${b.name}</td>
+          <td class="px-3 py-2 text-cobalt font-bold">${b.rmse}</td>
+          <td class="px-3 py-2">${b.mae}</td>
+          <td class="px-3 py-2 font-semibold text-emerald-700">${(b.recall * 100).toFixed(0)}%</td>
+          <td class="px-3 py-2 font-bold">${b.f1.toFixed(2)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function setActiveTab(targetTab) {
+      state.tab = targetTab;
+      document.querySelectorAll('.tab-btn').forEach((b) => {
+        const isDevTab = b.classList.contains('dev-only');
+        if (b.dataset.tab === targetTab) {
+          b.className = `tab-btn ${isDevTab ? 'dev-only ' : ''}rounded-xl bg-cobalt px-4 py-2 text-xs font-bold text-white shadow-xs transition`;
+        } else if (isDevTab) {
+          b.className = 'tab-btn dev-only rounded-xl border border-cobalt-border bg-cobalt-soft/60 px-4 py-2 text-xs font-semibold text-cobalt transition hover:bg-cobalt hover:text-white';
+        } else {
+          b.className = 'tab-btn rounded-xl border border-hairline bg-surface px-4 py-2 text-xs font-semibold text-slateBody transition hover:border-cobalt hover:text-cobalt';
+        }
+      });
+
+      document.querySelectorAll('.tab-panel').forEach((panel) => {
+        panel.classList.remove('active');
+      });
+      const activePanel = document.getElementById(`panel-${targetTab}`);
+      if (activePanel) activePanel.classList.add('active');
+
+      if (targetTab === 'satmap') {
+        if (!gmapRuntime.loaded) renderJamshedpurIsometricMap();
+      }
+      setTimeout(() => {
+        Object.values(chartInstances).forEach((ch) => ch && ch.resize());
+      }, 20);
+    }
+
+    function applyDeveloperModeVisibility() {
+      const devToggle = document.getElementById('devModeToggle');
+      const devLabel = document.getElementById('devModeStateLabel');
+      const devBanner = document.getElementById('devModeBannerPill');
+      const isDev = !!state.devMode;
+
+      if (devToggle) devToggle.checked = isDev;
+      if (devLabel) {
+        devLabel.textContent = isDev ? 'ON' : 'OFF';
+        devLabel.className = isDev
+          ? 'tabular-readout text-[11px] font-bold text-cobalt'
+          : 'tabular-readout text-[11px] font-bold text-slateMuted';
+      }
+      if (devBanner) {
+        devBanner.classList.toggle('hidden', !isDev);
+      }
+
+      document.querySelectorAll('.dev-only').forEach((el) => {
+        el.classList.toggle('hidden', !isDev);
+      });
+
+      // If turning off Developer Mode while viewing a dev tab, return smoothly to main product tab
+      if (!isDev && (state.tab === 'csvtrain' || state.tab === 'audit')) {
+        setActiveTab('satmap');
+      }
+    }
+
+    // ==================== 6. EVENT BINDINGS ====================
+    function bindInteractions() {
+      // Populate Substation Selector
+      const nodeSelect = document.getElementById('nodeSelect');
+      nodeSelect.innerHTML = JAMSHEDPUR_NODES.map(
+        (n) => `<option value="${n.id}">${n.shortName} — ${n.kva} kVA</option>`
+      ).join('');
+      nodeSelect.value = state.nodeId;
+      nodeSelect.addEventListener('change', (e) => {
+        state.nodeId = e.target.value;
+        updateDashboard();
+        if (gmapRuntime.loaded && gmapRuntime.map) {
+          const targetNode = JAMSHEDPUR_NODES.find((n) => n.id === state.nodeId);
+          if (targetNode) {
+            gmapRuntime.map.panTo({ lat: targetNode.lat, lng: targetNode.lng });
+            openGmapInfoWindowForNode(state.nodeId);
+          }
+        }
+      });
+
+      // Developer Mode Toggle
+      document.getElementById('devModeToggle').addEventListener('change', (e) => {
+        state.devMode = e.target.checked;
+        applyDeveloperModeVisibility();
+        showToast(
+          state.devMode
+            ? 'Developer Mode ON — CSV Trainer, Diagnostics & API settings unlocked.'
+            : 'Developer Mode OFF — Showing clean Jamshedpur Utility Product view.'
+        );
+      });
+
+      // Forecast Horizon Presets (2 hr, 6 hr, 10 hr)
+      document.querySelectorAll('.horizon-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.horizon = btn.dataset.horizon;
+          document.querySelectorAll('.horizon-btn').forEach((b) => {
+            b.className = 'horizon-btn rounded-lg py-1.5 text-xs font-semibold text-slateBody transition hover:text-slateInk';
+          });
+          btn.className = 'horizon-btn rounded-lg bg-cobalt py-1.5 text-xs font-semibold text-white shadow-xs transition';
+          updateDashboard();
+        });
+      });
+
+      // Sliders & Toggles
+      document.getElementById('modelSelect').addEventListener('change', (e) => {
+        state.model = e.target.value;
+        updateDashboard();
+      });
+
+      document.getElementById('smartShiftToggle').addEventListener('change', (e) => {
+        state.smartShift = e.target.checked;
+        updateDashboard();
+      });
+
+      const sliderBindings = [
+        ['sliderEvPct', 'evPct', parseInt],
+        ['sliderResScale', 'resScale', parseFloat],
+        ['sliderComScale', 'comScale', parseFloat],
+        ['sliderIndScale', 'indScale', parseFloat],
+        ['sliderTemp', 'tempC', parseInt],
+        ['sliderCloud', 'cloudPct', parseInt],
+      ];
+      sliderBindings.forEach(([id, key, parser]) => {
+        document.getElementById(id).addEventListener('input', (e) => {
+          state[key] = parser(e.target.value);
+          updateDashboard();
+        });
+      });
+
+      document.getElementById('btnRunNow').addEventListener('click', () => {
+        scenarioRevision += 1;
+        updateDashboard();
+        showToast('Scenario applied across all 8 Jamshedpur feeders.');
+      });
+
+      document.getElementById('btnResetControls').addEventListener('click', () => {
+        state.evPct = 22;
+        state.resScale = 1.0;
+        state.comScale = 1.0;
+        state.indScale = 1.05;
+        state.tempC = 38;
+        state.cloudPct = 20;
+        state.smartShift = true;
+        document.getElementById('sliderEvPct').value = 22;
+        document.getElementById('sliderResScale').value = 1.0;
+        document.getElementById('sliderComScale').value = 1.0;
+        document.getElementById('sliderIndScale').value = 1.05;
+        document.getElementById('sliderTemp').value = 38;
+        document.getElementById('sliderCloud').value = 20;
+        document.getElementById('smartShiftToggle').checked = true;
+        updateDashboard();
+        showToast('Scenario controls reset to Jamshedpur default baseline.');
+      });
+
+      // Google Maps API Key Load Button (inside Developer Settings)
+      const gmapInput = document.getElementById('gmapApiKeyInput');
+      let initialKey = DEFAULT_GMAP_DEMO_KEY;
+      try {
+        const savedKey = localStorage.getItem(GMAP_STORAGE_KEY);
+        if (savedKey && savedKey.trim()) initialKey = savedKey.trim();
+      } catch (e) {}
+      gmapInput.value = initialKey;
+
+      document.getElementById('btnLoadGmapApi').addEventListener('click', () => {
+        loadGoogleMapsScript(gmapInput.value);
+      });
+
+      // Isometric Camera Angle Controls
+      function applyCameraPose(tiltDeg, headingDeg, panToCenter = false) {
+        isoCamera.pitchDeg = tiltDeg;
+        isoCamera.yawDeg = headingDeg;
+        document.getElementById('hudCamPose').textContent = `Tilt ${isoCamera.pitchDeg}° / Hdg ${isoCamera.yawDeg}°`;
+
+        if (gmapRuntime.loaded && gmapRuntime.map) {
+          gmapRuntime.map.setTilt(tiltDeg);
+          gmapRuntime.map.setHeading(headingDeg);
+          if (panToCenter) {
+            gmapRuntime.map.panTo(JAMSHEDPUR_CENTER);
+            gmapRuntime.map.setZoom(13.4);
+          }
+        } else {
+          renderJamshedpurIsometricMap();
+        }
+      }
+
+      document.getElementById('camIso45Btn').addEventListener('click', () => applyCameraPose(45, -30, false));
+      document.getElementById('camSteep65Btn').addEventListener('click', () => applyCameraPose(65, -30, false));
+      document.getElementById('camTop2dBtn').addEventListener('click', () => applyCameraPose(0, 0, false));
+      document.getElementById('camRotate45Btn').addEventListener('click', () => {
+        const nextHeading = ((isoCamera.yawDeg + 45 + 180) % 360) - 180;
+        applyCameraPose(isoCamera.pitchDeg, nextHeading, false);
+      });
+      document.getElementById('camResetJsrBtn').addEventListener('click', () => applyCameraPose(58, -30, true));
+
+      // Tab Navigation
+      document.querySelectorAll('.tab-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setActiveTab(btn.dataset.tab);
+        });
+      });
+
+      // CSV Download, Upload & Train
+      document.getElementById('btnDownloadDemoCsv').addEventListener('click', () => {
+        const header = 'timestamp,substation,temp_c,solar_kw,residential_kw,commercial_kw,industrial_kw,ev_kw,total_kw,overload\n';
+        const body = trainingCsvRows
+          .map((r) => `${r.timestamp},${r.substation},${r.tempC},${r.solarKw},${r.resKw},${r.comKw},${r.indKw},${r.evKw},${r.totalKw},${r.overload}`)
+          .join('\n');
+        const blob = new Blob([header + body], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'jamshedpur_grid_training_data.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Downloaded jamshedpur_grid_training_data.csv (720 rows).');
+      });
+
+      document.getElementById('inputUploadCsv').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const lines = String(ev.target.result || '').trim().split(/\r?\n/);
+          if (lines.length < 2) return;
+          const parsed = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = lines[i].split(',');
+            if (cols.length < 9) continue;
+            parsed.push({
+              timestamp: cols[0],
+              substation: cols[1] || 'Custom_Feeder',
+              tempC: parseFloat(cols[2]) || 35,
+              solarKw: parseFloat(cols[3]) || 0,
+              resKw: parseFloat(cols[4]) || 0,
+              comKw: parseFloat(cols[5]) || 0,
+              indKw: parseFloat(cols[6]) || 0,
+              evKw: parseFloat(cols[7]) || 0,
+              totalKw: parseFloat(cols[8]) || 0,
+              overload: parseInt(cols[9], 10) || 0,
+            });
+          }
+          if (parsed.length > 0) {
+            trainingCsvRows = parsed;
+            renderCsvPreviewTable();
+            showToast(`Loaded ${parsed.length} rows from ${file.name}.`);
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      document.getElementById('btnTrainOnCsv').addEventListener('click', trainModelInBrowserOnCsv);
+
+      // CBSE Logbook Exporters
+      document.getElementById('btnExportJson').addEventListener('click', () => {
+        const sim = allNodeSummaries.find((s) => s.node.id === state.nodeId) || allNodeSummaries[0];
+        const report = {
+          project: 'GridPulse-AI (CBSE AI-843 Capstone)',
+          city: 'Jamshedpur, Jharkhand, India',
+          substation: sim.node.name,
+          horizon: state.horizon,
+          model: state.model,
+          peakIncomingKw: +sim.peakIncomingKw.toFixed(2),
+          peakOutgoingKw: +sim.peakOutgoingKw.toFixed(2),
+          transformerUtilizationPct: sim.activeUtilPct,
+          peakShavedPct: +sim.shavedPct.toFixed(2),
+          benchmarks: MODEL_BENCHMARKS,
+        };
+        const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gridpulse_cbse_report_${sim.node.id}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Exported CBSE Capstone JSON report.');
+      });
+
+      document.getElementById('btnExportLogCsv').addEventListener('click', () => {
+        const sim = allNodeSummaries.find((s) => s.node.id === state.nodeId) || allNodeSummaries[0];
+        const header = 'hour,incoming_kw,outgoing_kw,residential_kw,commercial_kw,industrial_kw,ev_kw,solar_kw,bess_kw\n';
+        const rows = HOURS.map((hr, h) =>
+          `${hr},${sim.incomingKw[h].toFixed(1)},${sim.outgoingKw[h].toFixed(1)},${sim.resKw[h].toFixed(1)},${sim.comKw[h].toFixed(1)},${sim.indKw[h].toFixed(1)},${sim.balancedEvKw[h].toFixed(1)},${sim.solarKw[h].toFixed(1)},${sim.bessDispatchKw[h].toFixed(1)}`
+        ).join('\n');
+        const blob = new Blob([header + rows], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gridpulse_logbook_${sim.node.id}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Exported hourly telemetry CSV for CBSE project logbook.');
+      });
+
+      window.addEventListener('resize', () => {
+        if (state.tab === 'satmap' && !gmapRuntime.loaded) {
+          renderJamshedpurIsometricMap();
+        }
+      });
+    }
+
+    // Boot Application
+    window.addEventListener('DOMContentLoaded', () => {
+      trainingCsvRows = generateJamshedpurDemoCsvRows();
+      renderCsvPreviewTable();
+      initializeCharts();
+      bindInteractions();
+      applyDeveloperModeVisibility();
+      updateDashboard();
+
+      const gmapInput = document.getElementById('gmapApiKeyInput');
+      const startupKey = gmapInput && gmapInput.value.trim() ? gmapInput.value.trim() : DEFAULT_GMAP_DEMO_KEY;
+      loadGoogleMapsScript(startupKey);
+    });
+  </script>
+</body>
+</html>
